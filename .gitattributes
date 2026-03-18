@@ -1,0 +1,3 @@
+# Mark NSIS installer scripts as vendored so GitHub Linguist ignores them
+*.nsi linguist-vendored=true
+*.nsh linguist-vendored=true
