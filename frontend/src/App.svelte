@@ -1,36 +1,46 @@
 <script lang="ts">
-    console.log("ok");
-    import { RunCmd } from "../wailsjs/go/app/App.js";
-    
-    let outputElement: HTMLTextAreaElement;
-    let output = "";
-    let cmd = "";
+    import Console from "./routes/Console.svelte";
+    import Setup from "./routes/Setup.svelte";
 
-    async function handleClick() {
-      const result = await RunCmd(cmd);
-      output += `> ${cmd}\n${result}\n\n`;
-      setTimeout(() => {
-        outputElement.scrollTop = outputElement.scrollHeight;
-      }, 0);
-    }
-    
+    let currentRoute = $state("setup");
+
+    // Disable zoom (Ctrl+scroll and Ctrl+/-/0)
+    window.addEventListener("wheel", (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    window.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && ["=", "-", "0", "+"].includes(e.key)) e.preventDefault();
+    });
 </script>
-<main class="w-full h-full text-neutral-50 bg-slate-950 p-4">
-    <div>
-        <button class="bg-slate-600 text-neutral-50 p-2 rounded-md" on:click={handleClick}>Run</button>
-        <input
-            class="bg-slate-800 rounded-md p-2"
-            type="text"
-            name="cmd"
-            id="cmd"
-            bind:value={cmd}
-        />
-    </div>
-    <textarea
-        id="output"
-        bind:this={outputElement}
-        bind:value={output}
-        readonly
-        class="w-full h-64 mt-4 bg-slate-800 text-neutral-50 p-2 rounded-md font-mono text-sm resize-none"
-    ></textarea>
-</main>
+
+<div class="flex flex-col h-full w-full bg-bg text-text">
+    <nav class="flex flex-row bg-bgmuted border-b border-bgmuted">
+        <button
+            class="px-5 py-2.5 text-sm transition-colors border-b-2 border-transparent"
+            class:border-b-text={currentRoute === "setup"}
+            class:text-text={currentRoute === "setup"}
+            class:text-textmuted={currentRoute !== "setup"}
+            class:hover:text-text={currentRoute !== "setup"}
+            class:hover:bg-bg={currentRoute !== "setup"}
+            onclick={() => (currentRoute = "setup")}
+        >
+            Setup
+        </button>
+        <button
+            class="px-5 py-2.5 text-sm transition-colors border-b-2 border-transparent"
+            class:border-b-text={currentRoute === "console"}
+            class:text-text={currentRoute === "console"}
+            class:text-textmuted={currentRoute !== "console"}
+            class:hover:text-text={currentRoute !== "console"}
+            class:hover:bg-bg={currentRoute !== "console"}
+            onclick={() => (currentRoute = "console")}
+        >
+            Console
+        </button>
+    </nav>
+    <main class="flex-1 overflow-auto">
+        {#if currentRoute === "console"}
+            <Console />
+        {:else if currentRoute === "setup"}
+            <Setup />
+        {/if}
+    </main>
+</div>

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -21,11 +22,16 @@ func Startup(a *App, ctx context.Context) {
 }
 
 func (a *App) RunCmd(command string) string {
-    parts := strings.Fields(command)
-    if len(parts) == 0 {
+    if strings.TrimSpace(command) == "" {
         return "Error: empty command"
     }
-    cmd := exec.Command(parts[0], parts[1:]...)
+    var cmd *exec.Cmd
+    if runtime.GOOS == "windows" {
+        cmd = exec.Command("cmd", "/C", command)
+    } else {
+        cmd = exec.Command("sh", "-c", command)
+    }
+    hideWindow(cmd)
     output, err := cmd.CombinedOutput()
     if err != nil {
         return "Error: " + err.Error()
