@@ -17,7 +17,7 @@ func NewApp() *App {
 }
 
 func Startup(a *App, ctx context.Context) {
-	fmt.Println("App Startup")
+	fmt.Println("Welcome to AMDecrypt-gui!")
 	a.ctx = ctx
 }
 

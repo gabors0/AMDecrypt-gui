@@ -21,7 +21,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "wails-template-svelte",
+		Title:  "AMDecrypt-gui",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{

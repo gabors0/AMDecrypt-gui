@@ -13,6 +13,24 @@ button:hover {
     @apply bg-bgactive;
 }
 
+button:disabled {
+    @apply text-textmuted;
+}
+button:disabled:hover {
+    @apply text-textmuted;
+    @apply bg-bgmuted;
+}
+
 .box {
-    @apply bg-bgmuted text-text outline outline-1 outline-accent focus:bg-bgactive;
+    @apply bg-bgmuted text-text outline outline-1 outline-accent focus-visible:bg-bgactive;
+}
+
+.diagonal-stripes {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    oklch(24% 0.04 157) 8px,
+    oklch(24% 0.04 157) 24px
+  );
 }

@@ -11,7 +11,7 @@
         value={log.output}
         readonly
         disabled
-        class="w-full h-[90%] p-2 box font-mono text-sm resize-none cursor-text bg-bgmuted text-text outline outline-1 outline-accent focus:bg-bgactive"
+    class="w-full flex-1 min-h-0 p-2 box font-mono text-sm resize-none cursor-text bg-bgmuted text-text outline outline-1 outline-accent focus:bg-bgactive"
     ></textarea>
     <button class="p-2 box" on:click={clearLog}>Clear</button>
 </div>

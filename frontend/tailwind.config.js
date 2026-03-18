@@ -10,7 +10,7 @@ export default {
         bgactive: "oklch(24% 0.04 157)",
         accent: "oklch(38% 0.04 157)",
         text: "oklch(98% 0.04 157)",
-        textmuted: "oklch(98% 0.04 157)",
+        textmuted: "oklch(60% 0.04 157)",
       },
     },
   },
