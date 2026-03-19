@@ -1,8 +1,15 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import Console from "./routes/Console.svelte";
     import Setup from "./routes/Setup.svelte";
+    import { EventsOn } from "../wailsjs/runtime/runtime";
+    import { appendLog } from "./lib/logStore.svelte";
 
     let currentRoute = $state("setup");
+
+    onMount(() => {
+        return EventsOn("log", (msg: string) => appendLog(msg));
+    });
 
     // Disable zoom (Ctrl+scroll and Ctrl+/-/0)
     window.addEventListener("wheel", (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });

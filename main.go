@@ -29,6 +29,7 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 255},
 		OnStartup:        startup,
+		OnDomReady:       domReady,
 		Bind: []interface{}{
 			appobj,
 		},
@@ -41,4 +42,8 @@ func main() {
 
 func startup(ctx context.Context) {
 	app.Startup(appobj, ctx)
+}
+
+func domReady(ctx context.Context) {
+	app.DomReady(appobj, ctx)
 }

@@ -6,7 +6,7 @@ function appendLog(msg: string) {
 }
 
 function clearLog() {
-  log.output = "--- console cleared! ---\n";
+  log.output = "--- Console cleared! ---\n";
 }
 
 export { log, appendLog, clearLog };

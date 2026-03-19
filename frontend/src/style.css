@@ -34,3 +34,13 @@ button:disabled:hover {
     oklch(24% 0.04 157) 24px
   );
 }
+
+.diagonal-stripes-red {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    oklch(24% 0.04 25) 8px,
+    oklch(24% 0.04 25) 24px
+  );
+}
