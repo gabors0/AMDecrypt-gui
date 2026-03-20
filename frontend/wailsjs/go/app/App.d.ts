@@ -3,6 +3,12 @@
 
 export function EmitLog(arg1:string):Promise<void>;
 
+export function GetAppDataDir():Promise<string>;
+
+export function RemoveAmd():Promise<void>;
+
 export function RunCmd(arg1:string):Promise<string>;
+
+export function SetupAmd():Promise<void>;
 
 export function WhichCmd(arg1:string):Promise<string>;

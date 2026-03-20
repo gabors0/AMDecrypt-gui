@@ -6,8 +6,20 @@ export function EmitLog(arg1) {
   return window['go']['app']['App']['EmitLog'](arg1);
 }
 
+export function GetAppDataDir() {
+  return window['go']['app']['App']['GetAppDataDir']();
+}
+
+export function RemoveAmd() {
+  return window['go']['app']['App']['RemoveAmd']();
+}
+
 export function RunCmd(arg1) {
   return window['go']['app']['App']['RunCmd'](arg1);
+}
+
+export function SetupAmd() {
+  return window['go']['app']['App']['SetupAmd']();
 }
 
 export function WhichCmd(arg1) {
