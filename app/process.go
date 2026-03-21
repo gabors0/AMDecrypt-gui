@@ -77,6 +77,7 @@ func (a *App) StartAmd() error {
 	a.stdin = stdin
 	a.cancel = cancel
 	a.running = true
+	a.done = make(chan struct{})
 
 	go func() {
 		scanner := bufio.NewScanner(stdout)
@@ -98,6 +99,7 @@ func (a *App) StartAmd() error {
 		a.running = false
 		a.mu.Unlock()
 		wailsRuntime.EventsEmit(a.ctx, "amd:stopped")
+		close(a.done)
 	}()
 
 	wailsRuntime.EventsEmit(a.ctx, "amd:started")
@@ -106,9 +108,9 @@ func (a *App) StartAmd() error {
 
 func (a *App) StopAmd() error {
 	a.mu.Lock()
-	defer a.mu.Unlock()
 
 	if !a.running {
+		a.mu.Unlock()
 		return nil
 	}
 
@@ -116,20 +118,19 @@ func (a *App) StopAmd() error {
 		_, _ = a.stdin.Write([]byte("exit\n"))
 	}
 
-	done := make(chan struct{})
-	go func() {
-		if a.cmd != nil && a.cmd.Process != nil {
-			a.cmd.Wait()
-		}
-		close(done)
-	}()
+	cancel := a.cancel
+	done := a.done
+	a.mu.Unlock()
 
+	// Wait for the single wait-goroutine in StartAmd to finish cleanup
 	select {
 	case <-done:
 	case <-time.After(5 * time.Second):
-		if a.cancel != nil {
-			a.cancel()
+		if cancel != nil {
+			cancel()
 		}
+		// Wait again briefly for the goroutine to finish after cancel
+		<-done
 	}
 
 	return nil
@@ -149,15 +150,22 @@ func (a *App) SendInput(text string) error {
 
 func (a *App) KillAmd() error {
 	a.mu.Lock()
-	defer a.mu.Unlock()
 
 	if !a.running {
+		a.mu.Unlock()
 		return nil
 	}
 
-	if a.cancel != nil {
-		a.cancel()
+	cancel := a.cancel
+	done := a.done
+	a.mu.Unlock()
+
+	if cancel != nil {
+		cancel()
 	}
+
+	// Wait for the wait-goroutine to finish cleanup so the frontend gets amd:stopped
+	<-done
 
 	return nil
 }

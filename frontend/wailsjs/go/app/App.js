@@ -10,6 +10,10 @@ export function GetAppDataDir() {
   return window['go']['app']['App']['GetAppDataDir']();
 }
 
+export function GetInstanceConfig() {
+  return window['go']['app']['App']['GetInstanceConfig']();
+}
+
 export function IsAmdRunning() {
   return window['go']['app']['App']['IsAmdRunning']();
 }
@@ -32,6 +36,10 @@ export function RunCmd(arg1) {
 
 export function SendInput(arg1) {
   return window['go']['app']['App']['SendInput'](arg1);
+}
+
+export function SetInstanceConfig(arg1, arg2) {
+  return window['go']['app']['App']['SetInstanceConfig'](arg1, arg2);
 }
 
 export function SetupAmd() {

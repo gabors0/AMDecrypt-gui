@@ -1,6 +1,7 @@
 <script lang="ts">
   import { RunCmd, WhichCmd, GetAppDataDir, OpenAppDataDir } from "../../wailsjs/go/app/App.js";
   import { SetupAmd, RemoveAmd, StartAmd, StopAmd, KillAmd } from "../../wailsjs/go/app/App.js";
+  import { GetInstanceConfig, SetInstanceConfig } from "../../wailsjs/go/app/App.js";
   import { appendLog } from "../lib/logStore.svelte.ts";
   import { amd } from "../lib/amdStore.svelte.ts";
   import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
@@ -12,6 +13,28 @@
   let isAmdInstalling = $state(false);
 
   let usePublicInstance = $state(true);
+  let instanceUrl = $state("wm.wol.moe");
+
+  // Load current instance config on mount
+  GetInstanceConfig().then((cfg) => {
+    instanceUrl = cfg.url;
+    usePublicInstance = cfg.secure;
+  }).catch(() => {});
+
+  async function onToggleInstance() {
+    usePublicInstance = !usePublicInstance;
+    if (usePublicInstance) {
+      await SetInstanceConfig(instanceUrl, true);
+    } else {
+      await SetInstanceConfig("127.0.0.1", false);
+    }
+  }
+
+  async function onInstanceUrlChange() {
+    if (usePublicInstance) {
+      await SetInstanceConfig(instanceUrl, true);
+    }
+  }
 
   type DepStatus = null | { installed: boolean; version: string };
   const _cached = JSON.parse(localStorage.getItem("depStatus") ?? "null");
@@ -308,7 +331,8 @@
         <span>use public instance</span>
         <input
           type="checkbox"
-          bind:checked={usePublicInstance}
+          checked={usePublicInstance}
+          onchange={onToggleInstance}
           class="sr-only peer"
         />
         <div
@@ -321,6 +345,8 @@
             type="text"
             class="box p-2 text-sm w-full"
             placeholder="wm.wol.moe"
+            bind:value={instanceUrl}
+            onchange={onInstanceUrlChange}
           />
           <button class="box p-2" disabled>Validate</button>
         </div>

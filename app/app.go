@@ -27,6 +27,7 @@ type App struct {
 	stdin   io.WriteCloser
 	cancel  context.CancelFunc
 	running bool
+	done    chan struct{}
 }
 
 func NewApp() *App {
@@ -250,6 +251,87 @@ func (a *App) SetupAmd() {
 	}
 	a.EmitLog("[SUCCESS] Pip requirements installed")
 	a.EmitLog("[SUCCESS] AMDecrypt setup complete!")
+}
+
+type InstanceConfig struct {
+	URL    string `json:"url"`
+	Secure bool   `json:"secure"`
+}
+
+func (a *App) GetInstanceConfig() (*InstanceConfig, error) {
+	appDataDir, err := a.GetAppDataDir()
+	if err != nil {
+		a.EmitLog("[ERROR] Failed to get app data dir: " + err.Error())
+		return nil, err
+	}
+	data, err := os.ReadFile(filepath.Join(appDataDir, "amd", "config.toml"))
+	if err != nil {
+		a.EmitLog("[ERROR] Failed to read config.toml: " + err.Error())
+		return nil, err
+	}
+	cfg := &InstanceConfig{}
+	for _, line := range strings.Split(string(data), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "url") && !strings.HasPrefix(trimmed, "#") {
+			parts := strings.SplitN(trimmed, "=", 2)
+			if len(parts) == 2 {
+				cfg.URL = strings.Trim(strings.TrimSpace(parts[1]), "\"")
+				break
+			}
+		}
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "secure") && !strings.HasPrefix(trimmed, "#") {
+			parts := strings.SplitN(trimmed, "=", 2)
+			if len(parts) == 2 {
+				cfg.Secure = strings.TrimSpace(parts[1]) == "true"
+				break
+			}
+		}
+	}
+	a.EmitLog(fmt.Sprintf("[INFO] Read instance config: url=%s, secure=%v", cfg.URL, cfg.Secure))
+	return cfg, nil
+}
+
+func (a *App) SetInstanceConfig(url string, secure bool) error {
+	appDataDir, err := a.GetAppDataDir()
+	if err != nil {
+		a.EmitLog("[ERROR] Failed to get app data dir: " + err.Error())
+		return err
+	}
+	configPath := filepath.Join(appDataDir, "amd", "config.toml")
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		a.EmitLog("[ERROR] Failed to read config.toml: " + err.Error())
+		return err
+	}
+	lines := strings.Split(string(data), "\n")
+	secureStr := "false"
+	if secure {
+		secureStr = "true"
+	}
+	urlDone, secureDone := false, false
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !urlDone && strings.HasPrefix(trimmed, "url") && !strings.HasPrefix(trimmed, "#") {
+			lines[i] = fmt.Sprintf("url = \"%s\"", url)
+			urlDone = true
+		}
+		if !secureDone && strings.HasPrefix(trimmed, "secure") && !strings.HasPrefix(trimmed, "#") {
+			lines[i] = fmt.Sprintf("secure = %s", secureStr)
+			secureDone = true
+		}
+		if urlDone && secureDone {
+			break
+		}
+	}
+	if err := os.WriteFile(configPath, []byte(strings.Join(lines, "\n")), 0644); err != nil {
+		a.EmitLog("[ERROR] Failed to write config.toml: " + err.Error())
+		return err
+	}
+	a.EmitLog(fmt.Sprintf("[INFO] Updated instance config: url=%s, secure=%v", url, secure))
+	return nil
 }
 
 func (a *App) RemoveAmd() {

@@ -43,7 +43,7 @@ button:disabled:hover {
 }
 
 .box {
-  @apply bg-bgmuted text-text outline outline-1 outline-accent focus-visible:bg-bgactive;
+  @apply bg-bgmuted text-text outline outline-1 outline-offset-0 outline-accent focus-visible:bg-bgactive focus-visible:outline-1 focus-visible:outline-accent;
 }
 
 ::placeholder {
