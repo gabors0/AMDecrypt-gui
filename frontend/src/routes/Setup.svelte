@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { RunCmd, WhichCmd, GetAppDataDir } from "../../wailsjs/go/app/App.js";
-  import { SetupAmd, RemoveAmd } from "../../wailsjs/go/app/App.js";
+  import { RunCmd, WhichCmd, GetAppDataDir, OpenAppDataDir } from "../../wailsjs/go/app/App.js";
+  import { SetupAmd, RemoveAmd, StartAmd, StopAmd, KillAmd } from "../../wailsjs/go/app/App.js";
   import { appendLog } from "../lib/logStore.svelte.ts";
+  import { amd } from "../lib/amdStore.svelte.ts";
   import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
   import Popup from "../modules/Popup.svelte";
 
   let isWmStopped = $state(true);
   let isWmInstalled = $state(false);
-  let isAmdStopped = $state(true);
+  let isAmdStopped = $derived(!amd.running);
   let isAmdInstalling = $state(false);
 
   let usePublicInstance = $state(true);
@@ -157,6 +158,7 @@
   </h2>
   <div class="flex items-center col-span-2 gap-x-2">
     <button class="box flex-1 py-2" onclick={checkStatus}>Run check</button>
+    <button class="box py-2 px-3" onclick={() => OpenAppDataDir()}>Open folder</button>
     <Popup
       text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!"
       position="left"
@@ -354,14 +356,22 @@
     <div class="p-2 flex flex-col gap-y-2">
       <div class="w-full flex items-center justify-center">
         <button
-          class="box w-1/2"
+          class="box w-1/3"
           disabled={!isAmdInstalled || !isAmdStopped || isAmdInstalling}
+          onclick={() => StartAmd()}
           >Start</button
         >
         <button
-          class="box w-1/2"
+          class="box w-1/3"
           disabled={!isAmdInstalled || isAmdStopped || isAmdInstalling}
+          onclick={() => StopAmd()}
           >Stop</button
+        >
+        <button
+          class="box w-1/3"
+          disabled={!isAmdInstalled || isAmdStopped || isAmdInstalling}
+          onclick={() => KillAmd()}
+          >Kill</button
         >
       </div>
       <button

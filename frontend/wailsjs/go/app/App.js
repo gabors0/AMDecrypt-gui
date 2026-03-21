@@ -10,6 +10,18 @@ export function GetAppDataDir() {
   return window['go']['app']['App']['GetAppDataDir']();
 }
 
+export function IsAmdRunning() {
+  return window['go']['app']['App']['IsAmdRunning']();
+}
+
+export function KillAmd() {
+  return window['go']['app']['App']['KillAmd']();
+}
+
+export function OpenAppDataDir() {
+  return window['go']['app']['App']['OpenAppDataDir']();
+}
+
 export function RemoveAmd() {
   return window['go']['app']['App']['RemoveAmd']();
 }
@@ -18,8 +30,20 @@ export function RunCmd(arg1) {
   return window['go']['app']['App']['RunCmd'](arg1);
 }
 
+export function SendInput(arg1) {
+  return window['go']['app']['App']['SendInput'](arg1);
+}
+
 export function SetupAmd() {
   return window['go']['app']['App']['SetupAmd']();
+}
+
+export function StartAmd() {
+  return window['go']['app']['App']['StartAmd']();
+}
+
+export function StopAmd() {
+  return window['go']['app']['App']['StopAmd']();
 }
 
 export function WhichCmd(arg1) {

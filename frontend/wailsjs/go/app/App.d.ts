@@ -5,10 +5,22 @@ export function EmitLog(arg1:string):Promise<void>;
 
 export function GetAppDataDir():Promise<string>;
 
+export function IsAmdRunning():Promise<boolean>;
+
+export function KillAmd():Promise<void>;
+
+export function OpenAppDataDir():Promise<void>;
+
 export function RemoveAmd():Promise<void>;
 
 export function RunCmd(arg1:string):Promise<string>;
 
+export function SendInput(arg1:string):Promise<void>;
+
 export function SetupAmd():Promise<void>;
+
+export function StartAmd():Promise<void>;
+
+export function StopAmd():Promise<void>;
 
 export function WhichCmd(arg1:string):Promise<string>;
