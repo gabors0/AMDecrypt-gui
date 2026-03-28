@@ -3,6 +3,7 @@
   import Commands from "./routes/Commands.svelte";
   import Console from "./routes/Console.svelte";
   import Setup from "./routes/Setup.svelte";
+  import About from "./routes/About.svelte";
   import { EventsOn } from "../wailsjs/runtime/runtime";
   import { appendLog } from "./lib/logStore.svelte";
   import { setRunning } from "./lib/amdStore.svelte";
@@ -35,8 +36,9 @@
 
   const tabs = [
     { id: "setup", label: "Setup" },
-    { id: "commands", label: "Command Creator" },
+    { id: "commands", label: "Command Builder" },
     { id: "logs", label: "Logs" },
+    { id: "about", label: "About" },
   ];
 </script>
 
@@ -63,6 +65,8 @@
       <Commands />
     {:else if currentRoute === "logs"}
       <Console />
+    {:else if currentRoute === "about"}
+      <About />
     {/if}
   </main>
 </div>

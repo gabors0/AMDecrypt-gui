@@ -55,22 +55,7 @@ textarea::-webkit-input-placeholder {
   -webkit-text-fill-color: oklch(60% 0.04 157);
 }
 
-.diagonal-stripes {
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 8px,
-    oklch(24% 0.04 157) 8px,
-    oklch(24% 0.04 157) 24px
-  );
+a {
+    @apply underline hover:text-text;
 }
 
-.diagonal-stripes-red {
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 8px,
-    oklch(24% 0.04 25) 8px,
-    oklch(24% 0.04 25) 24px
-  );
-}

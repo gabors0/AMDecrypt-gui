@@ -7,6 +7,7 @@
   import { amd } from "../lib/amdStore.svelte.ts";
   import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
   import Popup from "../modules/Popup.svelte";
+  import Indicator from "../modules/Indicator.svelte";
 
   let currentOS = $state("");
   let terminalBin = $state("");
@@ -217,14 +218,7 @@
 </script>
 
 <div class="grid max-w-2xl mx-auto grid-cols-2 p-4 gap-4 mt-4">
-  <h2
-    class="col-span-2 box flex flex-col {isReady
-      ? 'diagonal-stripes'
-      : 'diagonal-stripes-red'} p-2 text-xl text-center"
-  >
-    Status: <span class={isReady ? "text-green-500" : "text-red-600"}>{isReady ? "READY" : "NOT READY"}</span
-    >
-  </h2>
+  <h2 class="col-span-2 box p-2 text-xl flex items-center justify-between"><span>Status: <span class="font-bold {isReady ? "text-green-500" : "text-red-600"}">{isReady ? "Ready" : "Not ready"}</span></span><Indicator status={isReady ? 'green' : 'red'} /></h2>
   <div class="flex items-center col-span-2">
     <button class="box flex-1 py-2" onclick={checkStatus}>Run check</button>
   </div>
@@ -234,15 +228,12 @@
   </div>
   <div class="box flex flex-col col-span-2">
     <h2
-      class="p-2 text-xl text-center {pythonStatus?.installed &&
-      ffmpegStatus?.installed &&
-      gpacStatus?.installed &&
-      bento4Status?.installed &&
-      (useCustomInstance || (dockerStatus?.installed && goStatus?.installed))
-        ? 'diagonal-stripes'
-        : 'diagonal-stripes-red'}"
+      class="p-2 text-xl flex items-center justify-between"
+     
     >
-      Dependencies <span class="underline cursor-help"><Popup long text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!" position="left">[?]</Popup></span>    </h2>
+      <span>Dependencies <span class="underline cursor-help"><Popup long text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!" position="left">[?]</Popup></span></span>
+      <Indicator status={pythonStatus?.installed && ffmpegStatus?.installed && gpacStatus?.installed && bento4Status?.installed && (useCustomInstance || (dockerStatus?.installed && goStatus?.installed)) ? 'green' : 'red'} />
+    </h2>
     <hr class="w-full border-accent" />
     <div class="p-2 flex flex-col gap-y-2">
       <div class="grid grid-cols-1 text-sm">
@@ -385,7 +376,7 @@
   </div>
   {#if currentOS === "linux"}
     <div class="box flex flex-col col-span-2">
-      <h2 class="p-2 text-xl text-center diagonal-stripes">Terminal</h2>
+      <h2 class="p-2 text-xl">Terminal</h2>
       <hr class="w-full border-accent" />
       <div class="p-2 flex flex-col gap-y-2">
         <span class="text-sm text-textmuted">Terminal emulator used to launch AMD</span>
@@ -410,12 +401,11 @@
   {/if}
   <div class="box flex flex-col">
     <h2
-      class="p-2 text-xl text-center {!useCustomInstance &&
-      (!isWmInstalled || isWmStopped)
-        ? 'diagonal-stripes-red'
-        : 'diagonal-stripes'}"
+      class="p-2 text-xl flex items-center justify-between"
+     
     >
       wrapper-manager
+      <Indicator status={!useCustomInstance && (!isWmInstalled || isWmStopped) ? 'red' : 'green'} />
     </h2>
     <hr class="w-full border-accent" />
     <div class="p-2 flex flex-col h-full gap-y-2">
@@ -476,11 +466,11 @@
   </div>
   <div class="box flex flex-col">
     <h2
-      class="p-2 text-xl text-center {!isAmdInstalled || isAmdStopped
-        ? 'diagonal-stripes-red'
-        : 'diagonal-stripes'}"
+      class="p-2 text-xl flex items-center justify-between"
+     
     >
       AppleMusicDecrypt
+      <Indicator status={!isAmdInstalled || isAmdStopped ? 'red' : 'green'} />
     </h2>
     <hr class="w-full border-accent" />
     <div class="p-2 flex flex-col gap-y-2">

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { ClipboardSetText } from "../../wailsjs/runtime/runtime";
     import Popup from "../modules/Popup.svelte";
+    import Indicator from "../modules/Indicator.svelte";
 
     let selectedMode = $state<"download" | "quality">("download");
     let downloadCodec = $state("default");
@@ -50,7 +51,7 @@
 
 <div class="grid max-w-2xl mx-auto p-4 gap-4 mt-4">
     <div class="box flex flex-col w-full">
-        <h1 class="diagonal-stripes p-2 text-xl text-center">Command output</h1>
+        <h1 class="p-2 text-xl">Command output</h1>
         <hr class="w-full border-accent" />
         <div class="p-2 flex flex-col gap-2">
             <input type="text" value={currentCommand} readonly class="text-xl box p-2 w-full cursor-text focus:!bg-bgmuted" />
@@ -60,10 +61,12 @@
     <div class="flex flex-col gap-4">
         <div class="box flex flex-col w-full" onpointerdown={() => selectedMode = "download"}>
             <label
-                class="{selectedMode === 'download' ? 'diagonal-stripes' : 'diagonal-stripes-red'} p-2 text-xl text-center cursor-pointer flex items-center justify-center gap-2"
+                class="p-2 text-xl cursor-pointer flex items-center justify-between"
+               
             >
                 <input type="radio" name="commandMode" value="download" bind:group={selectedMode} class="sr-only" />
                 Download
+                <Indicator status={selectedMode === 'download' ? 'green' : 'off'} />
             </label>
             <hr class="w-full border-accent" />
             <div class="p-2 flex flex-col items-center gap-2">
@@ -107,11 +110,12 @@
         </div>
         <div class="box flex flex-col w-full" onpointerdown={() => selectedMode = "quality"}>
             <label
-                class="{selectedMode === 'quality' ? 'diagonal-stripes' : 'diagonal-stripes-red'} p-2 text-xl text-center cursor-pointer flex items-center justify-center gap-2"
+                class="p-2 text-xl cursor-pointer flex items-center justify-between"
+               
             >
                 <input type="radio" name="commandMode" value="quality" bind:group={selectedMode} class="sr-only" />
-                Quality
-                <span class="underline cursor-help"><Popup long text="Checks which qualities are available for the given link." position="bottom">[?]</Popup></span>
+                <span>Quality <span class="underline cursor-help"><Popup long text="Checks which qualities are available for the given link." position="bottom">[?]</Popup></span></span>
+                <Indicator status={selectedMode === 'quality' ? 'green' : 'off'} />
             </label>
             <hr class="w-full border-accent" />
             <div class="p-2 flex flex-col items-center gap-2">
