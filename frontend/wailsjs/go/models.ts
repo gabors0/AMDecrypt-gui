@@ -14,6 +14,18 @@ export namespace app {
 	        this.secure = source["secure"];
 	    }
 	}
+	export class Settings {
+	    terminal: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Settings(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.terminal = source["terminal"];
+	    }
+	}
 
 }
 

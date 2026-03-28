@@ -17,6 +17,7 @@ import (
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+
 //go:embed amd_pip_requirements.txt
 var pipRequirements []byte
 
@@ -24,8 +25,6 @@ type App struct {
 	ctx     context.Context
 	mu      sync.Mutex
 	cmd     *exec.Cmd
-	stdin   io.WriteCloser
-	cancel  context.CancelFunc
 	running bool
 	done    chan struct{}
 }
@@ -44,6 +43,23 @@ func DomReady(a *App, ctx context.Context) {
 }
 
 func (a *App) OpenAppDataDir() error {
+	dir, err := a.GetAppDataDir()
+	if err != nil {
+		return err
+	}
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("explorer", dir)
+	case "darwin":
+		cmd = exec.Command("open", dir)
+	default:
+		cmd = exec.Command("xdg-open", dir)
+	}
+	return cmd.Start()
+}
+
+func (a *App) OpenDownloadsDir() error {
 	dir, err := a.GetAppDataDir()
 	if err != nil {
 		return err

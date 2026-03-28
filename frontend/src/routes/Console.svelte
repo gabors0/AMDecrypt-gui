@@ -1,7 +1,17 @@
 <script lang="ts">
     import { log } from "../lib/logStore.svelte.ts";
     import { clearLog } from "../lib/logStore.svelte.ts";
+    import { tick } from "svelte";
     let outputElement: HTMLTextAreaElement;
+
+    $effect(() => {
+        log.output;
+        tick().then(() => {
+            if (outputElement) {
+                outputElement.scrollTop = outputElement.scrollHeight;
+            }
+        });
+    });
 </script>
 
 <div class="w-full h-full text-neutral-50 p-4 flex flex-col gap-y-2">

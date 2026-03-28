@@ -2,37 +2,57 @@
   import { RunCmd, WhichCmd, GetAppDataDir, OpenAppDataDir } from "../../wailsjs/go/app/App.js";
   import { SetupAmd, RemoveAmd, StartAmd, StopAmd, KillAmd } from "../../wailsjs/go/app/App.js";
   import { GetInstanceConfig, SetInstanceConfig } from "../../wailsjs/go/app/App.js";
+  import { GetOS, GetSettings, SaveSettings, DetectTerminal } from "../../wailsjs/go/app/App.js";
   import { appendLog } from "../lib/logStore.svelte.ts";
   import { amd } from "../lib/amdStore.svelte.ts";
   import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
   import Popup from "../modules/Popup.svelte";
+
+  let currentOS = $state("");
+  let terminalBin = $state("");
+
+  GetOS().then((os) => { currentOS = os; });
+  GetSettings().then((s) => { if (s.terminal) terminalBin = s.terminal; });
+
+  async function onTerminalChange() {
+    await SaveSettings({ terminal: terminalBin });
+  }
 
   let isWmStopped = $state(true);
   let isWmInstalled = $state(false);
   let isAmdStopped = $derived(!amd.running);
   let isAmdInstalling = $state(false);
 
-  let usePublicInstance = $state(true);
+  let useCustomInstance = $state(true);
   let instanceUrl = $state("wm.wol.moe");
+  let useSecure = $state(true);
 
   // Load current instance config on mount
   GetInstanceConfig().then((cfg) => {
-    instanceUrl = cfg.url;
-    usePublicInstance = cfg.secure;
+    useCustomInstance = cfg.url !== "127.0.0.1";
+    if (useCustomInstance) {
+      instanceUrl = cfg.url;
+    }
+    useSecure = cfg.secure;
   }).catch(() => {});
 
   async function onToggleInstance() {
-    usePublicInstance = !usePublicInstance;
-    if (usePublicInstance) {
-      await SetInstanceConfig(instanceUrl, true);
+    useCustomInstance = !useCustomInstance;
+    if (useCustomInstance) {
+      await SetInstanceConfig(instanceUrl, useSecure);
     } else {
       await SetInstanceConfig("127.0.0.1", false);
     }
   }
 
+  async function onToggleSecure() {
+    useSecure = !useSecure;
+    await SetInstanceConfig(instanceUrl, useSecure);
+  }
+
   async function onInstanceUrlChange() {
-    if (usePublicInstance) {
-      await SetInstanceConfig(instanceUrl, true);
+    if (useCustomInstance) {
+      await SetInstanceConfig(instanceUrl, useSecure);
     }
   }
 
@@ -40,6 +60,7 @@
   const _cached = JSON.parse(localStorage.getItem("depStatus") ?? "null");
   let isAmdInstalled = $state(_cached?.amdInstalled ?? false);
   let dockerStatus: DepStatus = $state(_cached?.docker ?? null);
+  let goStatus: DepStatus = $state(_cached?.go ?? null);
   let pythonStatus: DepStatus = $state(_cached?.python ?? null);
   let ffmpegStatus: DepStatus = $state(_cached?.ffmpeg ?? null);
   let gpacStatus: DepStatus = $state(_cached?.gpac ?? null);
@@ -47,12 +68,12 @@
   let lastChecked: string | null = $state(_cached?.lastChecked ?? null);
 
   let isReady = $derived(
-    dockerStatus?.installed &&
+    (useCustomInstance || (dockerStatus?.installed && goStatus?.installed)) &&
       pythonStatus?.installed &&
       ffmpegStatus?.installed &&
       gpacStatus?.installed &&
       bento4Status?.installed &&
-      (usePublicInstance || (isWmInstalled && !isWmStopped)) &&
+      (useCustomInstance || (isWmInstalled && !isWmStopped)) &&
       isAmdInstalled &&
       !isAmdStopped,
   );
@@ -68,6 +89,16 @@
       dockerStatus.installed
         ? `[INFO] Docker: ${dockerOut}`
         : "[WARN] Docker: not found",
+    );
+
+    const goOut = await RunCmd("go version");
+    goStatus = goOut.startsWith("Error:")
+      ? { installed: false, version: "" }
+      : { installed: true, version: goOut };
+    appendLog(
+      goStatus.installed
+        ? `[INFO] Go: ${goOut}`
+        : "[WARN] Go: not found",
     );
 
     let pythonOut = await RunCmd("python3 --version");
@@ -93,13 +124,17 @@
         : "[WARN] ffmpeg: not found",
     );
 
-    const gpacOut = await RunCmd("gpac -version");
-    gpacStatus = gpacOut.startsWith("Error:")
-      ? { installed: false, version: "" }
-      : { installed: true, version: gpacOut.split("\n")[0] };
+    const gpacPath = await WhichCmd("gpac");
+    if (gpacPath.startsWith("Error:")) {
+      gpacStatus = { installed: false, version: "" };
+    } else {
+      const gpacOut = await RunCmd("gpac -version 2>&1 || true");
+      const ver = gpacOut.split("\n").find((l: string) => l.includes("version")) ?? gpacPath;
+      gpacStatus = { installed: true, version: ver };
+    }
     appendLog(
       gpacStatus.installed
-        ? `[INFO] gpac: ${gpacOut.split("\n")[0]}`
+        ? `[INFO] gpac: ${gpacStatus.version}`
         : "[WARN] gpac: not found",
     );
 
@@ -124,11 +159,23 @@
         : "[WARN] AppleMusicDecrypt: not installed",
     );
 
+    if (currentOS === "linux" && !terminalBin) {
+      const detected = await DetectTerminal();
+      if (detected) {
+        terminalBin = detected;
+        await SaveSettings({ terminal: terminalBin });
+        appendLog("[INFO] Terminal auto-detected: " + terminalBin);
+      } else {
+        appendLog("[WARN] No terminal emulator detected. Set one manually in the Terminal field.");
+      }
+    }
+
     lastChecked = new Date().toLocaleString();
     localStorage.setItem(
       "depStatus",
       JSON.stringify({
         docker: dockerStatus,
+        go: goStatus,
         python: pythonStatus,
         ffmpeg: ffmpegStatus,
         gpac: gpacStatus,
@@ -175,26 +222,28 @@
       ? 'diagonal-stripes'
       : 'diagonal-stripes-red'} p-2 text-xl text-center"
   >
-    Status: <span class={isReady ? "text-green-500" : "text-red-600"}
-      >{isReady ? "READY" : "NOT READY"}</span
+    Status: <span class={isReady ? "text-green-500" : "text-red-600"}>{isReady ? "READY" : "NOT READY"}</span
     >
   </h2>
   <div class="flex items-center col-span-2 gap-x-2">
     <button class="box flex-1 py-2" onclick={checkStatus}>Run check</button>
-    <button class="box py-2 px-3" onclick={() => OpenAppDataDir()}>Open folder</button>
     <Popup
       text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!"
       position="left"
       long={true}><button class="box w-10 h-10 cursor-help">?</button></Popup
     >
   </div>
+  <div class="flex items-center col-span-2 gap-x-2">
+    <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open app folder</button>
+    <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open downloads folder</button>
+  </div>
   <div class="box flex flex-col col-span-2">
     <h2
-      class="p-2 text-xl text-center {dockerStatus?.installed &&
-      pythonStatus?.installed &&
+      class="p-2 text-xl text-center {pythonStatus?.installed &&
       ffmpegStatus?.installed &&
       gpacStatus?.installed &&
-      bento4Status?.installed
+      bento4Status?.installed &&
+      (useCustomInstance || (dockerStatus?.installed && goStatus?.installed))
         ? 'diagonal-stripes'
         : 'diagonal-stripes-red'}"
     >
@@ -203,27 +252,6 @@
     <hr class="w-full border-accent" />
     <div class="p-2 flex flex-col gap-y-2">
       <div class="grid grid-cols-1 text-sm">
-        <div class="box p-2 flex items-center justify-between gap-x-2">
-          <div class="flex flex-col">
-            <span class="">Docker</span>
-            <span class="text-xs text-textmuted">wrapper-manager</span>
-          </div>
-          <div class="flex flex-col items-end min-w-0">
-            {#if dockerStatus === null}
-              <span class="text-textmuted">Not checked</span>
-              <span class="text-xs invisible">_</span>
-            {:else if dockerStatus.installed}
-              <span class="text-green-500">Installed</span>
-              <span
-                class="text-xs text-textmuted truncate"
-                title={dockerStatus.version}>{dockerStatus.version}</span
-              >
-            {:else}
-              <span class="text-red-600">Not found</span>
-              <span class="text-xs invisible">_</span>
-            {/if}
-          </div>
-        </div>
         <div class="box p-2 flex items-center justify-between gap-x-2">
           <div class="flex flex-col">
             <span class="">Python</span>
@@ -308,6 +336,51 @@
             {/if}
           </div>
         </div>
+      {#if !useCustomInstance}
+          <br>
+          <div class="box p-2 flex items-center justify-between gap-x-2">
+          <div class="flex flex-col">
+            <span class="">Docker</span>
+            <span class="text-xs text-textmuted">wrapper-manager</span>
+          </div>
+          <div class="flex flex-col items-end min-w-0">
+            {#if dockerStatus === null}
+              <span class="text-textmuted">Not checked</span>
+              <span class="text-xs invisible">_</span>
+            {:else if dockerStatus.installed}
+              <span class="text-green-500">Installed</span>
+              <span
+                class="text-xs text-textmuted truncate"
+                title={dockerStatus.version}>{dockerStatus.version}</span
+              >
+            {:else}
+              <span class="text-red-600">Not found</span>
+              <span class="text-xs invisible">_</span>
+            {/if}
+          </div>
+        </div>
+        <div class="box p-2 flex items-center justify-between gap-x-2">
+          <div class="flex flex-col">
+            <span class="">Go</span>
+            <span class="text-xs text-textmuted">wrapper-manager</span>
+          </div>
+          <div class="flex flex-col items-end min-w-0">
+            {#if goStatus === null}
+              <span class="text-textmuted">Not checked</span>
+              <span class="text-xs invisible">_</span>
+            {:else if goStatus.installed}
+              <span class="text-green-500">Installed</span>
+              <span
+                class="text-xs text-textmuted truncate"
+                title={goStatus.version}>{goStatus.version}</span
+              >
+            {:else}
+              <span class="text-red-600">Not found</span>
+              <span class="text-xs invisible">_</span>
+            {/if}
+          </div>
+        </div>
+      {/if}
         {#if lastChecked}
           <span class="text-xs text-center mt-2 text-textmuted"
             >Last checked: {lastChecked}</span
@@ -316,9 +389,34 @@
       </div>
     </div>
   </div>
+  {#if currentOS === "linux"}
+    <div class="box flex flex-col col-span-2">
+      <h2 class="p-2 text-xl text-center diagonal-stripes">Terminal</h2>
+      <hr class="w-full border-accent" />
+      <div class="p-2 flex flex-col gap-y-2">
+        <span class="text-sm text-textmuted">Terminal emulator used to launch AMD</span>
+        <div class="flex gap-x-2">
+          <input
+            type="text"
+            class="box p-2 text-sm flex-1"
+            placeholder="e.g. konsole, kitty, xterm"
+            bind:value={terminalBin}
+            onchange={onTerminalChange}
+          />
+          <button class="box px-3" onclick={async () => {
+            const detected = await DetectTerminal();
+            if (detected) {
+              terminalBin = detected;
+              await SaveSettings({ terminal: terminalBin });
+            }
+          }}>Detect</button>
+        </div>
+      </div>
+    </div>
+  {/if}
   <div class="box flex flex-col">
     <h2
-      class="p-2 text-xl text-center {!usePublicInstance &&
+      class="p-2 text-xl text-center {!useCustomInstance &&
       (!isWmInstalled || isWmStopped)
         ? 'diagonal-stripes-red'
         : 'diagonal-stripes'}"
@@ -328,10 +426,10 @@
     <hr class="w-full border-accent" />
     <div class="p-2 flex flex-col h-full gap-y-2">
       <label class="flex items-center justify-between cursor-pointer">
-        <span>use public instance</span>
+        <span>Use custom instance</span>
         <input
           type="checkbox"
-          checked={usePublicInstance}
+          checked={useCustomInstance}
           onchange={onToggleInstance}
           class="sr-only peer"
         />
@@ -339,7 +437,19 @@
           class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
         ></div>
       </label>
-      {#if usePublicInstance}
+      {#if useCustomInstance}
+        <label class="flex items-center justify-between cursor-pointer">
+          <span>Secure (https)</span>
+          <input
+            type="checkbox"
+            checked={useSecure}
+            onchange={onToggleSecure}
+            class="sr-only peer"
+          />
+          <div
+            class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
+          ></div>
+        </label>
         <div class="flex flex-col justify-between h-full">
           <input
             type="text"

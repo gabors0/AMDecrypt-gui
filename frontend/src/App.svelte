@@ -1,27 +1,23 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Amd from "./routes/Amd.svelte";
+  import Commands from "./routes/Commands.svelte";
   import Console from "./routes/Console.svelte";
   import Setup from "./routes/Setup.svelte";
   import { EventsOn } from "../wailsjs/runtime/runtime";
   import { appendLog } from "./lib/logStore.svelte";
-  import { addLine, setRunning } from "./lib/amdStore.svelte";
+  import { setRunning } from "./lib/amdStore.svelte";
 
   let currentRoute = $state("setup");
 
   onMount(() => {
     const unsub1 = EventsOn("log", (msg: string) => appendLog(msg));
-    const unsub2 = EventsOn("amd:stdout", (text: string) => addLine(text, "stdout"));
-    const unsub3 = EventsOn("amd:stderr", (text: string) => addLine(text, "stderr"));
-    const unsub4 = EventsOn("amd:started", () => setRunning(true));
-    const unsub5 = EventsOn("amd:stopped", () => setRunning(false));
+    const unsub2 = EventsOn("amd:started", () => setRunning(true));
+    const unsub3 = EventsOn("amd:stopped", () => setRunning(false));
 
     return () => {
       unsub1();
       unsub2();
       unsub3();
-      unsub4();
-      unsub5();
     };
   });
 
@@ -39,7 +35,7 @@
 
   const tabs = [
     { id: "setup", label: "Setup" },
-    { id: "amd", label: "AMD" },
+    { id: "commands", label: "Command Creator" },
     { id: "logs", label: "Logs" },
   ];
 </script>
@@ -63,8 +59,8 @@
   <main class="flex-1 overflow-auto">
     {#if currentRoute === "setup"}
       <Setup />
-    {:else if currentRoute === "amd"}
-      <Amd />
+    {:else if currentRoute === "commands"}
+      <Commands />
     {:else if currentRoute === "logs"}
       <Console />
     {/if}

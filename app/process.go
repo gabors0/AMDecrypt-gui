@@ -1,172 +1,129 @@
 package app
 
 import (
-	"bufio"
-	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
+	"syscall"
 	"time"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
+
+var errNoTerminal = errors.New("no terminal emulator found (tried gnome-terminal, konsole, xfce4-terminal, xterm)")
 
 func (a *App) StartAmd() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
 	if a.running {
-		return fmt.Errorf("AMD is already running")
+		a.EmitLog("[WARNING] AMD is already running")
+		return errors.New("AMD is already running")
 	}
+
+	a.EmitLog("[INFO] Starting AMD...")
 
 	appDataDir, err := a.GetAppDataDir()
 	if err != nil {
+		a.EmitLog("[ERROR] Failed to get app data dir: " + err.Error())
 		return fmt.Errorf("failed to get app data dir: %w", err)
 	}
 
-	var pythonPath string
-	if runtime.GOOS == "windows" {
-		pythonPath = filepath.Join(appDataDir, "amd", "venv", "Scripts", "python.exe")
-	} else {
-		pythonPath = filepath.Join(appDataDir, "amd", "venv", "bin", "python")
-	}
-
-	if _, err := os.Stat(pythonPath); err != nil {
-		return fmt.Errorf("python not found at %s: %w", pythonPath, err)
-	}
-
 	amdDir := filepath.Join(appDataDir, "amd")
-	mainPy := filepath.Join(amdDir, "main.py")
+	pythonBin := filepath.Join(amdDir, "venv", "bin", "python")
 
-	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, pythonPath, mainPy)
+	if _, err := os.Stat(pythonBin); err != nil {
+		a.EmitLog("[ERROR] Python venv not found at " + pythonBin)
+		return fmt.Errorf("python not found at %s: %w", pythonBin, err)
+	}
+
+	settings, _ := a.GetSettings()
+	termBin, termArgs, err := findTerminal(settings.Terminal)
+	if err != nil {
+		a.EmitLog("[ERROR] " + err.Error())
+		return err
+	}
+	a.EmitLog("[INFO] Using terminal: " + termBin)
+
+	// Build the shell command that runs inside the terminal.
+	shellCmd := fmt.Sprintf("cd %q && %q main.py; echo; echo 'Exited, press Enter to close.'; read", amdDir, pythonBin)
+
+	// Build terminal command: <terminal> <termArgs...> bash -c "<shellCmd>"
+	args := append(termArgs, "bash", "-c", shellCmd)
+	cmd := exec.Command(termBin, args...)
 	cmd.Dir = amdDir
-	cmd.Env = append(os.Environ(),
-		"TERM=dumb",
-		"PYTHONUNBUFFERED=1",
-		"LOGURU_COLORIZE=false",
-	)
-	hideWindow(cmd)
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		cancel()
-		return fmt.Errorf("failed to get stdin pipe: %w", err)
-	}
-
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		cancel()
-		return fmt.Errorf("failed to get stdout pipe: %w", err)
-	}
-
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		cancel()
-		return fmt.Errorf("failed to get stderr pipe: %w", err)
-	}
+	a.EmitLog(fmt.Sprintf("[DEBUG] Command: %s %v", termBin, args))
 
 	if err := cmd.Start(); err != nil {
-		cancel()
-		return fmt.Errorf("failed to start AMD: %w", err)
+		a.EmitLog("[ERROR] Failed to start terminal: " + err.Error())
+		return fmt.Errorf("failed to start terminal: %w", err)
 	}
 
 	a.cmd = cmd
-	a.stdin = stdin
-	a.cancel = cancel
 	a.running = true
 	a.done = make(chan struct{})
 
-	go func() {
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			wailsRuntime.EventsEmit(a.ctx, "amd:stdout", scanner.Text())
-		}
-	}()
+	wailsRuntime.EventsEmit(a.ctx, "amd:started")
+	a.EmitLog("[SUCCESS] AMD started in external terminal (" + termBin + ")")
 
 	go func() {
-		scanner := bufio.NewScanner(stderr)
-		for scanner.Scan() {
-			wailsRuntime.EventsEmit(a.ctx, "amd:stderr", scanner.Text())
-		}
-	}()
-
-	go func() {
-		_ = cmd.Wait()
+		waitErr := cmd.Wait()
 		a.mu.Lock()
 		a.running = false
+		a.cmd = nil
+		close(a.done)
 		a.mu.Unlock()
 		wailsRuntime.EventsEmit(a.ctx, "amd:stopped")
-		close(a.done)
+		if waitErr != nil {
+			a.EmitLog("[INFO] AMD process exited: " + waitErr.Error())
+		} else {
+			a.EmitLog("[INFO] AMD process exited cleanly")
+		}
 	}()
 
-	wailsRuntime.EventsEmit(a.ctx, "amd:started")
 	return nil
 }
 
 func (a *App) StopAmd() error {
 	a.mu.Lock()
-
-	if !a.running {
+	if !a.running || a.cmd == nil {
 		a.mu.Unlock()
 		return nil
 	}
-
-	if a.stdin != nil {
-		_, _ = a.stdin.Write([]byte("exit\n"))
-	}
-
-	cancel := a.cancel
 	done := a.done
+	pgid := a.cmd.Process.Pid
 	a.mu.Unlock()
 
-	// Wait for the single wait-goroutine in StartAmd to finish cleanup
+	// Send SIGINT to the process group
+	_ = syscall.Kill(-pgid, syscall.SIGINT)
+
 	select {
 	case <-done:
+		return nil
 	case <-time.After(5 * time.Second):
-		if cancel != nil {
-			cancel()
-		}
-		// Wait again briefly for the goroutine to finish after cancel
+		// Force kill the process group
+		_ = syscall.Kill(-pgid, syscall.SIGKILL)
 		<-done
+		return nil
 	}
-
-	return nil
-}
-
-func (a *App) SendInput(text string) error {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-
-	if !a.running || a.stdin == nil {
-		return fmt.Errorf("AMD is not running")
-	}
-
-	_, err := a.stdin.Write([]byte(text + "\n"))
-	return err
 }
 
 func (a *App) KillAmd() error {
 	a.mu.Lock()
-
-	if !a.running {
+	if !a.running || a.cmd == nil {
 		a.mu.Unlock()
 		return nil
 	}
-
-	cancel := a.cancel
 	done := a.done
+	pgid := a.cmd.Process.Pid
 	a.mu.Unlock()
 
-	if cancel != nil {
-		cancel()
-	}
-
-	// Wait for the wait-goroutine to finish cleanup so the frontend gets amd:stopped
+	_ = syscall.Kill(-pgid, syscall.SIGKILL)
 	<-done
-
 	return nil
 }
 
