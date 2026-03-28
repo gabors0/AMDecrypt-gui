@@ -225,17 +225,12 @@
     Status: <span class={isReady ? "text-green-500" : "text-red-600"}>{isReady ? "READY" : "NOT READY"}</span
     >
   </h2>
-  <div class="flex items-center col-span-2 gap-x-2">
+  <div class="flex items-center col-span-2">
     <button class="box flex-1 py-2" onclick={checkStatus}>Run check</button>
-    <Popup
-      text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!"
-      position="left"
-      long={true}><button class="box w-10 h-10 cursor-help">?</button></Popup
-    >
   </div>
-  <div class="flex items-center col-span-2 gap-x-2">
+  <div class="flex items-center col-span-2 gap-x-4">
     <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open app folder</button>
-    <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open downloads folder</button>
+    <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open downloads folder (todo)</button>
   </div>
   <div class="box flex flex-col col-span-2">
     <h2
@@ -247,8 +242,7 @@
         ? 'diagonal-stripes'
         : 'diagonal-stripes-red'}"
     >
-      Dependencies
-    </h2>
+      Dependencies <span class="underline cursor-help"><Popup long text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!" position="left">[?]</Popup></span>    </h2>
     <hr class="w-full border-accent" />
     <div class="p-2 flex flex-col gap-y-2">
       <div class="grid grid-cols-1 text-sm">
@@ -516,7 +510,7 @@
         disabled={isAmdInstalling || isAmdInstalled}
         >{isAmdInstalling ? "Installing..." : "Install"}</button
       >
-      <button class="box" disabled={!isAmdInstalled || isAmdInstalling}
+      <button class="box" disabled title="not implemented"
         >Update</button
       >
       <button

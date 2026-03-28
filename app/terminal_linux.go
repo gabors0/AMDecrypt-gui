@@ -14,15 +14,16 @@ type terminalInfo struct {
 
 // knownTerminals lists terminals with their correct exec-arg syntax.
 var knownTerminals = []terminalInfo{
+	{"ghostty", []string{"-e"}},
+	{"wezterm", []string{"start", "--"}},
+	{"kitty", []string{"--"}},
+	{"alacritty", []string{"-e"}},
 	{"gnome-terminal", []string{"--"}},
-	{"kgx", []string{"--"}},           // GNOME Console (Fedora default)
-	{"ptyxis", []string{"--"}},        // Ptyxis (newer Fedora/GNOME)
+	{"kgx", []string{"--"}},
+	{"ptyxis", []string{"--"}},
 	{"konsole", []string{"-e"}},
 	{"xfce4-terminal", []string{"-e"}},
 	{"xterm", []string{"-e"}},
-	{"alacritty", []string{"-e"}},
-	{"kitty", []string{"--"}},
-	{"wezterm", []string{"start", "--"}},
 }
 
 // argsForTerminal returns the exec-args for a terminal binary.

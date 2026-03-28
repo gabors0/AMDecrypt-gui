@@ -46,9 +46,13 @@ button:disabled:hover {
   @apply bg-bgmuted text-text outline outline-1 outline-offset-0 outline-accent focus-visible:bg-bgactive focus-visible:outline-1 focus-visible:outline-accent;
 }
 
-::placeholder {
-  color: red;
-  opacity: 1; /* Firefox */
+input::placeholder,
+textarea::placeholder,
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: oklch(60% 0.04 157) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: oklch(60% 0.04 157);
 }
 
 .diagonal-stripes {
