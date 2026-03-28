@@ -34,9 +34,9 @@ cd AMDecrypt-gui
 ```bash
 wails build #-tags webkit2_41 for some linux systems
 ```
-4. Run
+4. Install using install.sh (or run directly from build/bin/AMDecrypt-gui)
 ```bash
-./build/bin/amdecrypt_gui
+sudo ./install.sh
 ```
 
 ### Platform Compatibility
@@ -47,3 +47,6 @@ wails build #-tags webkit2_41 for some linux systems
 | Windows  | - |
 | macOS    | - |
 
+### Screenshots
+<img src="/frontend/src/assets/images/screenshot1.png" alt="main screen" width="400">
+<img src="/frontend/src/assets/images/screenshot1.png" alt="command builder" width="400">

@@ -64,14 +64,18 @@ func (a *App) OpenDownloadsDir() error {
 	if err != nil {
 		return err
 	}
+	downloadsDir := filepath.Join(dir, "amd", "downloads")
+	if err := os.MkdirAll(downloadsDir, 0755); err != nil {
+		return err
+	}
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("explorer", dir)
+		cmd = exec.Command("explorer", downloadsDir)
 	case "darwin":
-		cmd = exec.Command("open", dir)
+		cmd = exec.Command("open", downloadsDir)
 	default:
-		cmd = exec.Command("xdg-open", dir)
+		cmd = exec.Command("xdg-open", downloadsDir)
 	}
 	return cmd.Start()
 }

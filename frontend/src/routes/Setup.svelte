@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { RunCmd, WhichCmd, GetAppDataDir, OpenAppDataDir } from "../../wailsjs/go/app/App.js";
+  import { RunCmd, WhichCmd, GetAppDataDir, OpenAppDataDir, OpenDownloadsDir } from "../../wailsjs/go/app/App.js";
   import { SetupAmd, RemoveAmd, StartAmd, StopAmd, KillAmd } from "../../wailsjs/go/app/App.js";
   import { GetInstanceConfig, SetInstanceConfig } from "../../wailsjs/go/app/App.js";
   import { GetOS, GetSettings, SaveSettings, DetectTerminal } from "../../wailsjs/go/app/App.js";
@@ -222,14 +222,138 @@
   <div class="flex items-center col-span-2">
     <button class="box flex-1 py-2" onclick={checkStatus}>Run check</button>
   </div>
-  <div class="flex items-center col-span-2 gap-x-4">
-    <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open app folder</button>
-    <button class="box flex-1 py-2 px-3" onclick={() => OpenAppDataDir()}>Open downloads folder (todo)</button>
+  <div class="flex box items-center col-span-2">
+    <button class="flex-1 py-2 px-3 border-r border-accent" onclick={() => OpenAppDataDir()}>Open app folder</button>
+    <button class="flex-1 py-2 px-3" onclick={() => OpenDownloadsDir()}>Open downloads folder</button>
   </div>
+  <!-- modules -->
+  <!-- wrapper-manager -->
+  <div class="box flex flex-col">
+    <h2
+      class="p-2 text-xl flex items-center justify-between"
+
+    >
+      wrapper-manager
+      <Indicator status={!useCustomInstance && (!isWmInstalled || isWmStopped) ? 'red' : 'green'} />
+    </h2>
+    <hr class="w-full border-accent" />
+    <div class="p-2 flex flex-col h-full gap-y-2">
+      <label class="flex items-center justify-between cursor-pointer">
+        <span>Use custom instance</span>
+        <input
+          type="checkbox"
+          checked={useCustomInstance}
+          onchange={onToggleInstance}
+          class="sr-only peer"
+        />
+        <div
+          class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
+        ></div>
+      </label>
+      {#if useCustomInstance}
+        <label class="flex items-center justify-between cursor-pointer">
+          <span>Secure (https)</span>
+          <input
+            type="checkbox"
+            checked={useSecure}
+            onchange={onToggleSecure}
+            class="sr-only peer"
+          />
+          <div
+            class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
+          ></div>
+        </label>
+        <div class="flex flex-col justify-between h-full">
+          <input
+            type="text"
+            class="box p-2 text-sm w-full"
+            placeholder="wm.wol.moe"
+            bind:value={instanceUrl}
+            onchange={onInstanceUrlChange}
+          />
+          <button class="box p-2" disabled>Validate</button>
+        </div>
+      {:else}
+        <div class="w-full flex items-center justify-center">
+          <button class="box w-1/2" disabled>Start</button>
+          <button class="box w-1/2" disabled>Stop</button>
+        </div>
+        <button class="box">Install</button>
+        <button class="box" disabled>Update</button>
+        <button class="box" disabled>Remove</button>
+        <button
+          class="box"
+          onclick={() =>
+            BrowserOpenURL(
+              "https://github.com/WorldObservationLog/wrapper-manager",
+            )}
+        >
+          Github
+        </button>
+      {/if}
+    </div>
+  </div>
+  <!-- AppleMusicDecrypt -->
+  <div class="box flex flex-col">
+    <h2
+      class="p-2 text-xl flex items-center justify-between"
+
+    >
+      AppleMusicDecrypt
+      <Indicator status={!isAmdInstalled || isAmdStopped ? 'red' : 'green'} />
+    </h2>
+    <hr class="w-full border-accent" />
+    <div class="p-2 flex flex-col gap-y-2">
+      <div class="w-full flex items-center justify-center">
+        <button
+          class="box w-1/3"
+          disabled={!isAmdInstalled || !isAmdStopped || isAmdInstalling}
+          onclick={() => StartAmd()}
+          >Start</button
+        >
+        <button
+          class="box w-1/3"
+          disabled={!isAmdInstalled || isAmdStopped || isAmdInstalling}
+          onclick={() => StopAmd()}
+          >Stop</button
+        >
+        <button
+          class="box w-1/3"
+          disabled={!isAmdInstalled || isAmdStopped || isAmdInstalling}
+          onclick={() => KillAmd()}
+          >Kill</button
+        >
+      </div>
+      <button
+        class="box"
+        onclick={installAmd}
+        disabled={isAmdInstalling || isAmdInstalled}
+        >{isAmdInstalling ? "Installing..." : "Install"}</button
+      >
+      <button class="box" disabled title="not implemented"
+        >Update</button
+      >
+      <button
+        class="box"
+        onclick={removeAmd}
+        disabled={!isAmdInstalled || isAmdInstalling}>Remove</button
+      >
+      <button
+        class="box"
+        onclick={() =>
+          BrowserOpenURL(
+            "https://github.com/WorldObservationLog/AppleMusicDecrypt",
+          )}
+      >
+        Github
+      </button>
+    </div>
+  </div>
+  <!-- Dependencies -->
   <div class="box flex flex-col col-span-2">
     <h2
       class="p-2 text-xl flex items-center justify-between"
-     
+
     >
       <span>Dependencies <span class="underline cursor-help"><Popup long text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!" position="left">[?]</Popup></span></span>
       <Indicator status={pythonStatus?.installed && ffmpegStatus?.installed && gpacStatus?.installed && bento4Status?.installed && (useCustomInstance || (dockerStatus?.installed && goStatus?.installed)) ? 'green' : 'red'} />
@@ -374,6 +498,7 @@
       </div>
     </div>
   </div>
+  <!-- terminal option (for linux) -->
   {#if currentOS === "linux"}
     <div class="box flex flex-col col-span-2">
       <h2 class="p-2 text-xl">Terminal</h2>
@@ -399,152 +524,5 @@
       </div>
     </div>
   {/if}
-  <div class="box flex flex-col">
-    <h2
-      class="p-2 text-xl flex items-center justify-between"
-     
-    >
-      wrapper-manager
-      <Indicator status={!useCustomInstance && (!isWmInstalled || isWmStopped) ? 'red' : 'green'} />
-    </h2>
-    <hr class="w-full border-accent" />
-    <div class="p-2 flex flex-col h-full gap-y-2">
-      <label class="flex items-center justify-between cursor-pointer">
-        <span>Use custom instance</span>
-        <input
-          type="checkbox"
-          checked={useCustomInstance}
-          onchange={onToggleInstance}
-          class="sr-only peer"
-        />
-        <div
-          class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
-        ></div>
-      </label>
-      {#if useCustomInstance}
-        <label class="flex items-center justify-between cursor-pointer">
-          <span>Secure (https)</span>
-          <input
-            type="checkbox"
-            checked={useSecure}
-            onchange={onToggleSecure}
-            class="sr-only peer"
-          />
-          <div
-            class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
-          ></div>
-        </label>
-        <div class="flex flex-col justify-between h-full">
-          <input
-            type="text"
-            class="box p-2 text-sm w-full"
-            placeholder="wm.wol.moe"
-            bind:value={instanceUrl}
-            onchange={onInstanceUrlChange}
-          />
-          <button class="box p-2" disabled>Validate</button>
-        </div>
-      {:else}
-        <div class="w-full flex items-center justify-center">
-          <button class="box w-1/2" disabled>Start</button>
-          <button class="box w-1/2" disabled>Stop</button>
-        </div>
-        <button class="box">Install</button>
-        <button class="box" disabled>Update</button>
-        <button class="box" disabled>Remove</button>
-        <button
-          class="box"
-          onclick={() =>
-            BrowserOpenURL(
-              "https://github.com/WorldObservationLog/wrapper-manager",
-            )}
-        >
-          Github
-        </button>
-      {/if}
-    </div>
-  </div>
-  <div class="box flex flex-col">
-    <h2
-      class="p-2 text-xl flex items-center justify-between"
-     
-    >
-      AppleMusicDecrypt
-      <Indicator status={!isAmdInstalled || isAmdStopped ? 'red' : 'green'} />
-    </h2>
-    <hr class="w-full border-accent" />
-    <div class="p-2 flex flex-col gap-y-2">
-      <div class="w-full flex items-center justify-center">
-        <button
-          class="box w-1/3"
-          disabled={!isAmdInstalled || !isAmdStopped || isAmdInstalling}
-          onclick={() => StartAmd()}
-          >Start</button
-        >
-        <button
-          class="box w-1/3"
-          disabled={!isAmdInstalled || isAmdStopped || isAmdInstalling}
-          onclick={() => StopAmd()}
-          >Stop</button
-        >
-        <button
-          class="box w-1/3"
-          disabled={!isAmdInstalled || isAmdStopped || isAmdInstalling}
-          onclick={() => KillAmd()}
-          >Kill</button
-        >
-      </div>
-      <button
-        class="box"
-        onclick={installAmd}
-        disabled={isAmdInstalling || isAmdInstalled}
-        >{isAmdInstalling ? "Installing..." : "Install"}</button
-      >
-      <button class="box" disabled title="not implemented"
-        >Update</button
-      >
-      <button
-        class="box"
-        onclick={removeAmd}
-        disabled={!isAmdInstalled || isAmdInstalling}>Remove</button
-      >
-      <button
-        class="box"
-        onclick={() =>
-          BrowserOpenURL(
-            "https://github.com/WorldObservationLog/AppleMusicDecrypt",
-          )}
-      >
-        Github
-      </button>
-    </div>
-  </div>
-  <!-- <div class="box flex flex-col">
-        <h2
-            class="p-2 text-xl text-center {bento4Status?.installed
-                ? 'diagonal-stripes'
-                : 'diagonal-stripes-red'}"
-        >
-            Bento4
-        </h2>
-        <hr class="w-full border-accent" />
-        <div class="p-2 flex flex-col gap-y-2">
-            <button
-                class="box"
-                onclick={() =>
-                    BrowserOpenURL("https://www.bento4.com/downloads/")}
-            >
-                Download
-            </button>
-            <button
-                class="box"
-                onclick={() =>
-                    BrowserOpenURL(
-                        "https://github.com/axiomatic-systems/Bento4",
-                    )}
-            >
-                Github
-            </button>
-        </div>
-    </div> -->
+
 </div>
