@@ -10,20 +10,20 @@
 
   const colorMap: Record<Status, StatusColors> = {
     green: {
-      primary: "oklch(60% 0.2 175)",
-      secondary: "oklch(15% 0.15 175)",
+      primary: "var(--color-themegreen)",
+      secondary: "var(--color-themegreenmuted)",
     },
     yellow: {
-      primary: "oklch(60% 0.1 100)",
-      secondary: "oklch(15% 0.08 100)",
+      primary: "var(--color-themeyellow)",
+      secondary: "var(--color-themeyellowmuted)",
     },
     red: {
-      primary: "oklch(50% 0.15 25)",
-      secondary: "oklch(15% 0.12 25)",
+      primary: "var(--color-themered)",
+      secondary: "var(--color-themeredmuted)",
     },
     off: {
-      primary: "oklch(30% 0 157)",
-      secondary: "oklch(15% 0 157)",
+      primary: "var(--color-themegray)",
+      secondary: "var(--color-themegraymuted)",
     },
   };
 

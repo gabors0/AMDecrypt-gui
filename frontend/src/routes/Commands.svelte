@@ -81,9 +81,9 @@
                 <!-- codec (-c) -->
                 <div class="flex w-full items-center justify-between gap-2">
                     <span>Codec</span>
-                    <div class="flex flex-wrap gap-1 justify-end">
+                    <div class="flex flex-wrap justify-end">
                         {#each codecs as opt}
-                            <label class="box px-2 py-1 text-sm cursor-pointer hover:bg-bgactive {downloadCodec === opt.value ? '!bg-bgactive' : ''}">
+                            <label class="box px-2 py-1 text-sm cursor-pointer hover:bg-bgactive! {downloadCodec === opt.value ? 'bg-bgactive!' : ''}">
                                 <input type="radio" name="downloadCodec" value={opt.value} bind:group={downloadCodec} class="sr-only" />
                                 {opt.label}
                             </label>

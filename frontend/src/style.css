@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* oxanium-regular - latin */
 @font-face {
@@ -18,6 +16,49 @@
   font-style: normal;
   font-weight: 700;
   src: url("./assets/fonts/oxanium-v21-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+@theme {
+    /* https://colorpalette.pro/?color=oklch%2840%25+0.04+157%29&paletteType=tas&paletteStyle=square&colorFormat=oklch&effects=0%2C0%2C0%2C0 */
+    --color-bg: oklch(12% 0.04 157);
+    --color-bgmuted: oklch(16% 0.04 157);
+    --color-bgactive: oklch(30% 0.04 157);
+    --color-accent: oklch(38% 0.04 157);
+    --color-text: oklch(98% 0.04 157);
+    --color-textmuted: oklch(60% 0.04 157);
+    
+    --color-themered: oklch(50% 0.15 25);
+    --color-themeredmuted: oklch(15% 0.12 25);
+    
+    --color-themegreen: oklch(60% 0.2 175);
+    --color-themegreenmuted: oklch(15% 0.15 175);
+    
+    --color-themeyellow: oklch(60% 0.1 100);
+    --color-themeyellowmuted: oklch(15% 0.08 100);
+    
+    --color-themegray: oklch(30% 0 157);
+    --color-themegraymuted: oklch(15% 0 157);
+}
+
+[data-theme="light"] {
+    --color-bg: oklch(94% 0.02 157);
+    --color-bgmuted: oklch(98% 0.02 157);
+    --color-bgactive: oklch(87% 0.04 157);
+    --color-accent: oklch(38% 0.04 157);
+    --color-text: oklch(12% 0.04 157);
+    --color-textmuted: oklch(40% 0.04 157);
+    
+    --color-themered: oklch(50% 0.15 25);
+    --color-themeredmuted: oklch(70% 0.12 25);
+    
+    --color-themegreen: oklch(50% 0.2 175);
+    --color-themegreenmuted: oklch(70% 0.15 175);
+    
+    --color-themeyellow: oklch(60% 0.1 100);
+    --color-themeyellowmuted: oklch(70% 0.08 100);
+    
+    --color-themegray: oklch(50% 0 157);
+    --color-themegraymuted: oklch(70% 0 157);
 }
 
 html,
@@ -58,4 +99,3 @@ textarea::-webkit-input-placeholder {
 a {
     @apply underline hover:text-text;
 }
-

@@ -1,21 +1,21 @@
 <script>
     import appIcon from "../../../build/no_radius.png";
-    import Indicator from "../modules/Indicator.svelte";
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+      
+    let selectedTheme = $state(localStorage.getItem("theme") ?? "dark");
 
-    const links = [
-        {
-            label: "AMDecrypt-gui",
-            url: "https://github.com/gabors0/AMDecrypt-gui",
-        },
-        {
-            label: "AppleMusicDecrypt",
-            url: "https://github.com/WorldObservationLog/AppleMusicDecrypt",
-        },
-        {
-            label: "wrapper-manager",
-            url: "https://github.com/WorldObservationLog/wrapper-manager",
-        },
+    $effect(() => {
+        localStorage.setItem("theme", selectedTheme);
+        if (selectedTheme === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+        } else {
+            document.documentElement.removeAttribute("data-theme");
+        }
+    });
+
+    const themes = [
+        { value: "light", label: "Light" },
+        { value: "dark", label: "Dark" },
     ];
 </script>
 
@@ -48,6 +48,20 @@
             <a onclick={() => BrowserOpenURL("https://github.com/WorldObservationLog/wrapper-manager")} href="#">wrapper-manager</a>
             by <a onclick={() => BrowserOpenURL("https://github.com/WorldObservationLog")} href="#">@WorldObservationLog</a>
             under the <b>AGPL-3.0 License</b>
+        </div>
+        <hr class="w-full border-accent">
+        <div class="p-2 text-center text-sm text-textmuted">
+            <div class="flex w-full items-center justify-between gap-2">
+                <span>Theme</span>
+                <div class="flex flex-wrap justify-end">
+                {#each themes as opt}
+                        <label class="box border-r-0 px-2 py-1 text-sm cursor-pointer hover:bg-bgactive! {selectedTheme === opt.value ? 'bg-bgactive!' : ''}">
+                            <input type="radio" name="downloadCodec" value={opt.value} bind:group={selectedTheme} class="sr-only" />
+                            {opt.label}
+                        </label>
+                {/each}
+                </div>
+            </div>
         </div>
     </div>
 </div>

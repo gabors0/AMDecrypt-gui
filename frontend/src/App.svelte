@@ -10,6 +10,10 @@
 
   let currentRoute = $state("setup");
 
+  if (localStorage.getItem("theme") === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+
   onMount(() => {
     const unsub1 = EventsOn("log", (msg: string) => appendLog(msg));
     const unsub2 = EventsOn("amd:started", () => setRunning(true));

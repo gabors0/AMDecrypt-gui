@@ -218,7 +218,7 @@
 </script>
 
 <div class="grid max-w-2xl mx-auto grid-cols-2 p-4 gap-4 mt-4">
-  <h2 class="col-span-2 box p-2 text-xl flex items-center justify-between"><span>Status: <span class="font-bold {isReady ? "text-green-500" : "text-red-600"}">{isReady ? "Ready" : "Not ready"}</span></span><Indicator status={isReady ? 'green' : 'red'} /></h2>
+  <h2 class="col-span-2 box p-2 text-xl flex items-center justify-between"><span>Status: <span class="font-bold p-1 {isReady ? "bg-green-500" : "bg-red-600"}">{isReady ? "Ready" : "Not ready"}</span></span><Indicator status={isReady ? 'green' : 'red'} /></h2>
   <div class="flex items-center col-span-2">
     <button class="box flex-1 py-2" onclick={checkStatus}>Run check</button>
   </div>
