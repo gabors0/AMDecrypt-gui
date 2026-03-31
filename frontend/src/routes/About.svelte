@@ -1,6 +1,7 @@
 <script>
     import appIcon from "../../../build/no_radius.png";
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+    import { appendLog } from "../lib/logStore.svelte";
       
     let selectedTheme = $state(localStorage.getItem("theme") ?? "dark");
 
@@ -28,10 +29,8 @@
         <!-- App header -->
         <div class="grid grid-cols-[1fr_auto]">
             <div class="flex flex-col gap-1 p-2">
-                <h2 class="text-lg font-semibold">AMDecrypt-gui</h2>
-                <span class="text-sm text-textmuted">Version 0.1.1</span>
-                <div class="mt-auto flex justify-between *:text-sm *:text-textmuted">
-                    
+                <h2 class="text-3xl font-semibold">AMDecrypt-gui</h2>
+                <div class="flex mt-auto justify-between *:text-sm *:text-textmuted">
                     <span>made with &lt;3 by <a onclick={() => BrowserOpenURL("https://gs0.me/")} href="#">@gabors0</a> under the <b>MIT License</b></span>
                     <a onclick={() => BrowserOpenURL("https://github.com/gabors0/AMDecrypt-gui")} href="#">github</a>
                 </div>
@@ -63,5 +62,13 @@
                 </div>
             </div>
         </div>
+        <hr class="w-full border-accent">
+        <details class="p-2 text-sm text-textmuted">
+            <summary class="list-none italic">v0.1.1</summary>
+            <div class="flex flex-col gap-2">
+                <span class="text-textmuted">(dev test)</span>
+                <button class="box p-2" onclick={() => appendLog("[ERROR] this is just a test :)")}>test error</button>
+            </div>
+        </details>
     </div>
 </div>

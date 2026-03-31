@@ -88,7 +88,7 @@ button:disabled:hover {
 }
 
 .box {
-  @apply bg-bgmuted text-text outline outline-1 outline-offset-0 outline-accent focus-visible:bg-bgactive focus-visible:outline-1 focus-visible:outline-accent;
+  @apply bg-bgmuted text-text outline outline-offset-0 outline-accent focus-visible:bg-bgactive focus-visible:outline-1 focus-visible:outline-accent;
 }
 
 input::placeholder,
@@ -102,4 +102,12 @@ textarea::-webkit-input-placeholder {
 
 a {
     @apply underline hover:text-text;
+}
+
+@keyframes error-flash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: color-mix(in oklch, var(--color-themered) 30%, transparent); }
+}
+.error {
+  animation: error-flash .1s steps(1) infinite;
 }

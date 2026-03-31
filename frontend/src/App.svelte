@@ -5,7 +5,7 @@
   import Setup from "./routes/Setup.svelte";
   import About from "./routes/About.svelte";
   import { EventsOn } from "../wailsjs/runtime/runtime";
-  import { appendLog } from "./lib/logStore.svelte";
+  import { appendLog, log } from "./lib/logStore.svelte";
   import { setRunning } from "./lib/amdStore.svelte";
 
   let currentRoute = $state("setup");
@@ -56,7 +56,8 @@
         class:text-textmuted={currentRoute !== tab.id}
         class:hover:text-text={currentRoute !== tab.id}
         class:hover:bg-bg={currentRoute !== tab.id}
-        onclick={() => (currentRoute = tab.id)}
+        class:error={tab.id === "logs" && log.hasError}
+        onclick={() => { currentRoute = tab.id; if (tab.id === "logs") log.hasError = false; }}
       >
         {tab.label}
       </button>
