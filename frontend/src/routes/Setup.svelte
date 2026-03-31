@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import {
         RunCmd,
         WhichCmd,
@@ -269,13 +270,17 @@
             : { installed: true, version: bento4Path };
         isBento4Working = false;
     }
+
+    onMount(() => {
+        void checkStatus();
+    });
 </script>
 
 <div class="grid max-w-2xl mx-auto grid-cols-2 p-4 gap-4 mt-4">
     <h2 class="col-span-2 box p-2 text-xl flex items-center justify-between">
         <span
             >Status: <span
-                class="font-bold p-1 {isReady ? 'bg-themegreen' : 'bg-red-600'}"
+                class="font-bold p-1 px-2 text-bg {isReady ? 'bg-themegreen' : 'bg-themered'}"
                 >{isReady ? "Ready" : "Not ready"}</span
             ></span
         ><Indicator status={isReady ? "green" : "red"} />
@@ -501,7 +506,7 @@
                     </div>
                 </div>
                 <div class="box p-2 flex items-center justify-between gap-x-2">
-                    <span class="">Bento4 (mp4edit)</span>
+                    <span class="">Bento4</span>
                     <div class="flex flex-row ml-auto *:p-1 *:px-2">
                         <button
                             class="box"

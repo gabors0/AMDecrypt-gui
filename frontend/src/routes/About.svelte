@@ -29,7 +29,7 @@
         <div class="grid grid-cols-[1fr_auto]">
             <div class="flex flex-col gap-1 p-2">
                 <h2 class="text-lg font-semibold">AMDecrypt-gui</h2>
-                <span class="text-sm text-textmuted">Version 0.1.0</span>
+                <span class="text-sm text-textmuted">Version 0.1.1</span>
                 <div class="mt-auto flex justify-between *:text-sm *:text-textmuted">
                     
                     <span>made with &lt;3 by <a onclick={() => BrowserOpenURL("https://gs0.me/")} href="#">@gabors0</a> under the <b>MIT License</b></span>

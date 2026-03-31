@@ -38,7 +38,7 @@ func Startup(a *App, ctx context.Context) {
 }
 
 func DomReady(a *App, ctx context.Context) {
-	a.EmitLog("Welcome to AMDecrypt-gui!")
+	a.EmitLog("[INFO] Welcome to AMDecrypt-gui!")
 }
 
 func (a *App) OpenAppDataDir() error {
@@ -168,7 +168,7 @@ func (a *App) SetupBento4() {
 		return
 	}
 
-	if !runStep("Cloning Bento4 repository", exec.Command("git", "clone", "--depth=1", "https://github.com/axiomatic-systems/Bento4.git", repoDir)) {
+	if !runStep("Cloning Bento4 repository...", exec.Command("git", "clone", "--depth=1", "https://github.com/axiomatic-systems/Bento4.git", repoDir)) {
 		return
 	}
 
@@ -216,10 +216,10 @@ func (a *App) SetupBento4() {
 	}
 
 	bentoDir := filepath.Dir(bentoPath)
-	if err := a.updateBento4Config(bentoPath, bentoDir); err != nil {
-		a.EmitLog("[WARN] Bento4 installed, but failed to update config.toml: " + err.Error())
+	if err := a.updateBento4Settings(bentoPath, bentoDir); err != nil {
+		a.EmitLog("[WARN] Bento4 installed, but failed to update settings.jsonc: " + err.Error())
 	} else {
-		a.EmitLog("[INFO] Updated Bento4 uninstall settings in config.toml")
+		a.EmitLog("[INFO] Updated Bento4 uninstall settings in settings.jsonc")
 	}
 
 	if err := os.RemoveAll(repoDir); err != nil {
@@ -227,7 +227,7 @@ func (a *App) SetupBento4() {
 		return
 	}
 
-	a.EmitLog("[SUCCESS] Bento4 installed successfully")
+	a.EmitLog("[SUCCESS] Bento4 installed successfully!")
 }
 
 func (a *App) RemoveBento4() {
@@ -236,30 +236,16 @@ func (a *App) RemoveBento4() {
 		return
 	}
 
-	appDataDir, err := a.GetAppDataDir()
+	settings, err := a.GetSettings()
 	if err != nil {
-		a.EmitLog("[ERROR] Failed to get app data dir: " + err.Error())
+		a.EmitLog("[ERROR] Failed to read settings.jsonc: " + err.Error())
 		return
 	}
 
-	configPath := filepath.Join(appDataDir, "amd", "config.toml")
-	configData, err := os.ReadFile(configPath)
-	if err != nil {
-		a.EmitLog("[ERROR] Failed to read config.toml: " + err.Error())
-		return
-	}
-
-	safeUninstall := parseTomlBool(configData, "bento4_safe_uninstall", true)
-	if !safeUninstall {
-		a.EmitLog("[ERROR] Safe Bento4 uninstall is disabled in config.toml")
-		a.EmitLog("[INFO] This build only supports safe uninstalling. Re-enable bento4_safe_uninstall = true")
-		return
-	}
-
-	managedPath := parseTomlString(configData, "bento4_mp4decrypt_path")
-	managedDir := parseTomlString(configData, "bento4_bin_dir")
+	managedPath := strings.TrimSpace(settings.Bento4.Mp4decryptPath)
+	managedDir := strings.TrimSpace(settings.Bento4.BinDir)
 	if managedPath == "" || managedDir == "" {
-		a.EmitLog("[INFO] Bento4 uninstall skipped: no app-managed install path in config.toml")
+		a.EmitLog("[INFO] Bento4 uninstall skipped: no app-managed install path in settings.jsonc")
 		return
 	}
 
@@ -270,7 +256,7 @@ func (a *App) RemoveBento4() {
 	}
 
 	if filepath.Clean(currentPath) != filepath.Clean(managedPath) {
-		a.EmitLog("[INFO] Bento4 uninstall skipped: mp4decrypt path does not match app-managed path")
+		a.EmitLog("[INFO] Bento4 uninstall skipped: only app-installed Bento4 can be removed")
 		a.EmitLog("[INFO] managed=" + managedPath)
 		a.EmitLog("[INFO] current=" + currentPath)
 		return
@@ -300,111 +286,25 @@ func (a *App) RemoveBento4() {
 		return
 	}
 
-	if err := a.updateBento4Config("", ""); err != nil {
-		a.EmitLog("[WARN] Removed Bento4 binaries, but failed to update config.toml: " + err.Error())
+	if err := a.updateBento4Settings("", ""); err != nil {
+		a.EmitLog("[WARN] Removed Bento4 binaries, but failed to update settings.jsonc: " + err.Error())
 	} else {
-		a.EmitLog("[INFO] Cleared Bento4 uninstall paths in config.toml")
+		a.EmitLog("[INFO] Cleared Bento4 uninstall paths in settings.jsonc")
 	}
 
-	a.EmitLog("[SUCCESS] Removed managed Bento4 binaries")
+	a.EmitLog("[SUCCESS] Removed managed Bento4 binaries!")
 }
 
-func parseTomlString(data []byte, key string) string {
-	for _, line := range strings.Split(string(data), "\n") {
-		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "#") || !strings.HasPrefix(trimmed, key) {
-			continue
-		}
-		parts := strings.SplitN(trimmed, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		return strings.Trim(strings.TrimSpace(parts[1]), "\"")
-	}
-	return ""
-}
-
-func parseTomlBool(data []byte, key string, fallback bool) bool {
-	for _, line := range strings.Split(string(data), "\n") {
-		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "#") || !strings.HasPrefix(trimmed, key) {
-			continue
-		}
-		parts := strings.SplitN(trimmed, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		value := strings.TrimSpace(parts[1])
-		if value == "true" {
-			return true
-		}
-		if value == "false" {
-			return false
-		}
-	}
-	return fallback
-}
-
-func upsertTomlLine(lines []string, key, value string) []string {
-	for i, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-		if strings.HasPrefix(trimmed, key) {
-			lines[i] = fmt.Sprintf("%s = %s", key, value)
-			return lines
-		}
-	}
-	return append(lines, fmt.Sprintf("%s = %s", key, value))
-}
-
-func (a *App) updateBento4Config(mp4decryptPath string, binDir string) error {
-	appDataDir, err := a.GetAppDataDir()
+func (a *App) updateBento4Settings(mp4decryptPath string, binDir string) error {
+	settings, err := a.GetSettings()
 	if err != nil {
 		return err
 	}
 
-	configPath := filepath.Join(appDataDir, "amd", "config.toml")
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
-				return err
-			}
-			data = []byte{}
-		} else {
-			return err
-		}
-	}
+	settings.Bento4.Mp4decryptPath = mp4decryptPath
+	settings.Bento4.BinDir = binDir
 
-	lines := strings.Split(string(data), "\n")
-	commentOne := "# WARNING: Disabling safe uninstall can remove files outside AMDecrypt-gui managed paths."
-	commentTwo := "# Keep bento4_safe_uninstall = true unless you fully understand the risks."
-
-	hasCommentOne := false
-	hasCommentTwo := false
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == commentOne {
-			hasCommentOne = true
-		}
-		if trimmed == commentTwo {
-			hasCommentTwo = true
-		}
-	}
-	if !hasCommentOne {
-		lines = append(lines, commentOne)
-	}
-	if !hasCommentTwo {
-		lines = append(lines, commentTwo)
-	}
-
-	lines = upsertTomlLine(lines, "bento4_safe_uninstall", "true")
-	lines = upsertTomlLine(lines, "bento4_mp4decrypt_path", fmt.Sprintf("%q", mp4decryptPath))
-	lines = upsertTomlLine(lines, "bento4_bin_dir", fmt.Sprintf("%q", binDir))
-
-	return os.WriteFile(configPath, []byte(strings.Join(lines, "\n")), 0644)
+	return a.SaveSettings(settings)
 }
 
 func (a *App) SetupAmd() {
@@ -554,7 +454,7 @@ func (a *App) SetupAmd() {
 		a.EmitLog("[ERROR] pip install failed: " + err.Error() + "\n" + string(out))
 		return
 	}
-	a.EmitLog("[SUCCESS] Pip requirements installed")
+	a.EmitLog("[SUCCESS] Pip requirements installed!")
 	a.EmitLog("[SUCCESS] AMDecrypt setup complete!")
 }
 

@@ -69,6 +69,10 @@ body,
   font-family: "Oxanium", monospace;
 }
 
+button {
+    @apply cursor-pointer;
+}
+
 button:hover {
   @apply bg-bgactive;
 }
