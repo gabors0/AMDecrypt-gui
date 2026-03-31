@@ -24,6 +24,8 @@ export function OpenDownloadsDir():Promise<void>;
 
 export function RemoveAmd():Promise<void>;
 
+export function RemoveBento4():Promise<void>;
+
 export function RunCmd(arg1:string):Promise<string>;
 
 export function SaveSettings(arg1:app.Settings):Promise<void>;
@@ -31,6 +33,8 @@ export function SaveSettings(arg1:app.Settings):Promise<void>;
 export function SetInstanceConfig(arg1:string,arg2:boolean):Promise<void>;
 
 export function SetupAmd():Promise<void>;
+
+export function SetupBento4():Promise<void>;
 
 export function StartAmd():Promise<void>;
 

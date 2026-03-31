@@ -46,6 +46,10 @@ export function RemoveAmd() {
   return window['go']['app']['App']['RemoveAmd']();
 }
 
+export function RemoveBento4() {
+  return window['go']['app']['App']['RemoveBento4']();
+}
+
 export function RunCmd(arg1) {
   return window['go']['app']['App']['RunCmd'](arg1);
 }
@@ -60,6 +64,10 @@ export function SetInstanceConfig(arg1, arg2) {
 
 export function SetupAmd() {
   return window['go']['app']['App']['SetupAmd']();
+}
+
+export function SetupBento4() {
+  return window['go']['app']['App']['SetupBento4']();
 }
 
 export function StartAmd() {

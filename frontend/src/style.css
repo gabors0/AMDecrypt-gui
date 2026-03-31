@@ -30,8 +30,8 @@
     --color-themered: oklch(50% 0.15 25);
     --color-themeredmuted: oklch(15% 0.12 25);
     
-    --color-themegreen: oklch(60% 0.2 175);
-    --color-themegreenmuted: oklch(15% 0.15 175);
+    --color-themegreen: oklch(70% 0.2 175);
+    --color-themegreenmuted: oklch(20% 0.15 175);
     
     --color-themeyellow: oklch(60% 0.1 100);
     --color-themeyellowmuted: oklch(15% 0.08 100);
