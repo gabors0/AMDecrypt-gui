@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"embed"
-	"go-wails-svelte5-template/app"
+	"amdecrypt-gui/app"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"

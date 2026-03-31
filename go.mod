@@ -1,4 +1,4 @@
-module go-wails-svelte5-template
+module amdecrypt-gui
 
 go 1.24
 
