@@ -2,7 +2,9 @@
     import appIcon from "../../../build/no_radius.png";
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
     import { appendLog } from "../lib/logStore.svelte";
-      
+    
+    let devTestVisible = $state(false);
+    
     let selectedTheme = $state(localStorage.getItem("theme") ?? "dark");
 
     $effect(() => {
@@ -63,12 +65,15 @@
             </div>
         </div>
         <hr class="w-full border-accent">
-        <details class="p-2 text-sm text-textmuted">
-            <summary class="list-none italic">v0.1.1</summary>
+        <div class="p-2 text-sm text-textmuted">
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <span ondblclick={() => devTestVisible = !devTestVisible} class="list-none italic">v0.1.2</span>
+            {#if devTestVisible}
             <div class="flex flex-col gap-2">
                 <span class="text-textmuted">(dev test)</span>
                 <button class="box p-2" onclick={() => appendLog("[ERROR] this is just a test :)")}>test error</button>
             </div>
-        </details>
+            {/if}
+        </div>
     </div>
 </div>

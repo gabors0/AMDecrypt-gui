@@ -55,16 +55,18 @@
     let instanceUrl = $state("wm.wol.moe");
     let useSecure = $state(true);
 
-    // Load current instance config on mount
-    GetInstanceConfig()
-        .then((cfg) => {
+    async function loadInstanceConfig() {
+        try {
+            const cfg = await GetInstanceConfig();
             useCustomInstance = cfg.url !== "127.0.0.1";
             if (useCustomInstance) {
                 instanceUrl = cfg.url;
             }
             useSecure = cfg.secure;
-        })
-        .catch(() => {});
+        } catch {
+            // config.toml missing — AMD not installed yet, keep defaults
+        }
+    }
 
     async function onToggleInstance() {
         useCustomInstance = !useCustomInstance;
@@ -190,6 +192,7 @@
                 ? "[INFO] AppleMusicDecrypt: installed"
                 : "[WARN] AppleMusicDecrypt: not installed",
         );
+        if (isAmdInstalled) await loadInstanceConfig();
 
         if (currentOS === "linux" && !terminalBin) {
             const detected = await DetectTerminal();
@@ -246,6 +249,7 @@
             `test -f "${appDataDir}/amd/venv/bin/python" && echo ok`,
         );
         persistAmdInstalled(result.trim() === "ok");
+        if (result.trim() === "ok") await loadInstanceConfig();
         isAmdInstalling = false;
     }
 
@@ -272,6 +276,7 @@
     }
 
     onMount(() => {
+        if (isAmdInstalled) void loadInstanceConfig();
         void checkStatus();
     });
 </script>
@@ -430,7 +435,7 @@
                     ><Popup
                         long
                         text="Dependencies are required for AMDecrypt to work, please install them and make sure they are on your system PATH!"
-                        position="left">[?]</Popup
+                        position="right">[?]</Popup
                     ></span
                 ></span
             >
