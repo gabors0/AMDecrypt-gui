@@ -10,5 +10,12 @@
   "author": {
     "name": "gabors0",
     "email": "gabors0@proton.me"
+  },
+  "info": {
+    "companyName": "gabors0",
+    "productName": "AMDecrypt-gui",
+    "productVersion": "0.1.3",
+    "copyright": "MIT License © 2026 gabors0",
+    "comments": "Cross-platform GUI for AppleMusicDecrypt"
   }
 }

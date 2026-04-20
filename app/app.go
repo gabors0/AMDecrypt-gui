@@ -20,6 +20,8 @@ import (
 //go:embed amd_pip_requirements.txt
 var pipRequirements []byte
 
+const Version = "0.1.3"
+
 type App struct {
 	ctx     context.Context
 	mu      sync.Mutex
@@ -81,6 +83,10 @@ func (a *App) OpenDownloadsDir() error {
 
 func (a *App) EmitLog(msg string) {
 	wailsRuntime.EventsEmit(a.ctx, "log", msg)
+}
+
+func (a *App) GetVersion() string {
+	return Version
 }
 
 func (a *App) WhichCmd(name string) string {

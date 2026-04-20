@@ -1,9 +1,12 @@
 <script>
     import appIcon from "../../../build/no_radius.png";
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+    import { GetVersion } from "../../wailsjs/go/app/App";
     import { appendLog } from "../lib/logStore.svelte";
-    
+
     let devTestVisible = $state(false);
+    let version = $state("");
+    GetVersion().then((v) => (version = v));
     
     let selectedTheme = $state(localStorage.getItem("theme") ?? "dark");
 
@@ -67,7 +70,7 @@
         <hr class="w-full border-accent">
         <div class="p-2 text-sm text-textmuted">
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span ondblclick={() => devTestVisible = !devTestVisible} class="list-none italic">v0.1.2</span>
+            <span ondblclick={() => devTestVisible = !devTestVisible} class="list-none italic">v{version}</span>
             {#if devTestVisible}
             <div class="flex flex-col gap-2">
                 <span class="text-textmuted">(dev test)</span>
