@@ -50,4 +50,4 @@ sudo ./install.sh
 ### Screenshots
 Main screen             |  Command builder
 :-------------------------:|:-------------------------:
-<img src="/frontend/src/assets/images/screenshot1.png" alt="main screen" width="350"> | <img src="/frontend/src/assets/images/screenshot1.png" alt="command builder" width="350">
+<img src="/frontend/src/assets/images/screenshot1.png" alt="main screen" width="350"> | <img src="/frontend/src/assets/images/screenshot2.png" alt="command builder" width="350">
