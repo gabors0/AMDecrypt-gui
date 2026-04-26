@@ -14,9 +14,15 @@ export function GetOS():Promise<string>;
 
 export function GetSettings():Promise<app.Settings>;
 
+export function GetVersion():Promise<string>;
+
 export function IsAmdRunning():Promise<boolean>;
 
+export function IsWmRunning():Promise<boolean>;
+
 export function KillAmd():Promise<void>;
+
+export function KillWm():Promise<void>;
 
 export function OpenAppDataDir():Promise<void>;
 
@@ -25,6 +31,8 @@ export function OpenDownloadsDir():Promise<void>;
 export function RemoveAmd():Promise<void>;
 
 export function RemoveBento4():Promise<void>;
+
+export function RemoveWm():Promise<void>;
 
 export function RunCmd(arg1:string):Promise<string>;
 
@@ -36,8 +44,14 @@ export function SetupAmd():Promise<void>;
 
 export function SetupBento4():Promise<void>;
 
+export function SetupWm():Promise<void>;
+
 export function StartAmd():Promise<void>;
 
+export function StartWm(arg1:boolean):Promise<void>;
+
 export function StopAmd():Promise<void>;
+
+export function StopWm():Promise<void>;
 
 export function WhichCmd(arg1:string):Promise<string>;

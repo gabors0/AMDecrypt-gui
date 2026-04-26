@@ -15,6 +15,11 @@
         KillAmd,
         SetupBento4,
         RemoveBento4,
+        SetupWm,
+        RemoveWm,
+        StartWm,
+        StopWm,
+        KillWm,
     } from "../../wailsjs/go/app/App.js";
     import {
         GetInstanceConfig,
@@ -28,6 +33,7 @@
     } from "../../wailsjs/go/app/App.js";
     import { appendLog } from "../lib/logStore.svelte.ts";
     import { amd } from "../lib/amdStore.svelte.ts";
+    import { wm } from "../lib/wmStore.svelte.ts";
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
     import Popup from "../modules/Popup.svelte";
     import Indicator from "../modules/Indicator.svelte";
@@ -46,10 +52,16 @@
         await SaveSettings({ terminal: terminalBin });
     }
 
-    let isWmStopped = $state(true);
-    let isWmInstalled = $state(false);
+    let isWmStopped = $derived(!wm.running);
     let isAmdStopped = $derived(!amd.running);
     let isAmdInstalling = $state(false);
+    let isWmInstalling = $state(false);
+    let wmVerbose = $state(localStorage.getItem("wmVerboseLogs") === "true");
+
+    function onWmVerboseChange() {
+        wmVerbose = !wmVerbose;
+        localStorage.setItem("wmVerboseLogs", String(wmVerbose));
+    }
 
     let useCustomInstance = $state(true);
     let instanceUrl = $state("wm.wol.moe");
@@ -58,7 +70,7 @@
     async function loadInstanceConfig() {
         try {
             const cfg = await GetInstanceConfig();
-            useCustomInstance = cfg.url !== "127.0.0.1";
+            useCustomInstance = cfg.url !== "127.0.0.1:8080";
             if (useCustomInstance) {
                 instanceUrl = cfg.url;
             }
@@ -73,7 +85,7 @@
         if (useCustomInstance) {
             await SetInstanceConfig(instanceUrl, useSecure);
         } else {
-            await SetInstanceConfig("127.0.0.1", false);
+            await SetInstanceConfig("127.0.0.1:8080", false);
         }
     }
 
@@ -91,6 +103,7 @@
     type DepStatus = null | { installed: boolean; version: string };
     const _cached = JSON.parse(localStorage.getItem("depStatus") ?? "null");
     let isAmdInstalled = $state(_cached?.amdInstalled ?? false);
+    let isWmInstalled = $state(_cached?.wmInstalled ?? false);
     let dockerStatus: DepStatus = $state(_cached?.docker ?? null);
     let goStatus: DepStatus = $state(_cached?.go ?? null);
     let pythonStatus: DepStatus = $state(_cached?.python ?? null);
@@ -194,6 +207,16 @@
         );
         if (isAmdInstalled) await loadInstanceConfig();
 
+        const wmOut = await RunCmd(
+            `test -f "${appDataDir}/wrapper-manager/docker-compose.yml" && echo ok`,
+        );
+        isWmInstalled = wmOut.trim() === "ok";
+        appendLog(
+            isWmInstalled
+                ? "[INFO] wrapper-manager: installed"
+                : "[WARN] wrapper-manager: not installed",
+        );
+
         if (currentOS === "linux" && !terminalBin) {
             const detected = await DetectTerminal();
             if (detected) {
@@ -218,6 +241,7 @@
                 gpac: gpacStatus,
                 bento4: bento4Status,
                 amdInstalled: isAmdInstalled,
+                wmInstalled: isWmInstalled,
                 lastChecked,
             }),
         );
@@ -251,6 +275,34 @@
         persistAmdInstalled(result.trim() === "ok");
         if (result.trim() === "ok") await loadInstanceConfig();
         isAmdInstalling = false;
+    }
+
+    function persistWmInstalled(value: boolean) {
+        isWmInstalled = value;
+        const current =
+            JSON.parse(localStorage.getItem("depStatus") ?? "null") ?? {};
+        localStorage.setItem(
+            "depStatus",
+            JSON.stringify({ ...current, wmInstalled: value }),
+        );
+    }
+
+    async function installWm() {
+        isWmInstalling = true;
+        await SetupWm();
+        const appDataDir = await GetAppDataDir();
+        const result = await RunCmd(
+            `test -f "${appDataDir}/wrapper-manager/docker-compose.yml" && echo ok`,
+        );
+        persistWmInstalled(result.trim() === "ok");
+        isWmInstalling = false;
+    }
+
+    async function removeWm() {
+        isWmInstalling = true;
+        await RemoveWm();
+        persistWmInstalled(false);
+        isWmInstalling = false;
     }
 
     let isBento4Working = $state(false);
@@ -352,12 +404,52 @@
                 </div>
             {:else}
                 <div class="w-full flex items-center justify-center">
-                    <button class="box w-1/2" disabled>Start</button>
-                    <button class="box w-1/2" disabled>Stop</button>
+                    <button
+                        class="box w-1/3"
+                        disabled={!isWmInstalled ||
+                            !isWmStopped ||
+                            isWmInstalling}
+                        onclick={() => StartWm(wmVerbose)}>Start</button
+                    >
+                    <button
+                        class="box w-1/3"
+                        disabled={!isWmInstalled ||
+                            isWmStopped ||
+                            isWmInstalling}
+                        onclick={() => StopWm()}>Stop</button
+                    >
+                    <button
+                        class="box w-1/3"
+                        disabled={!isWmInstalled ||
+                            isWmStopped ||
+                            isWmInstalling}
+                        onclick={() => KillWm()}>Kill</button
+                    >
                 </div>
-                <button class="box">Install</button>
-                <button class="box" disabled>Update</button>
-                <button class="box" disabled>Remove</button>
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span>Verbose logs</span>
+                    <input
+                        type="checkbox"
+                        checked={wmVerbose}
+                        onchange={onWmVerboseChange}
+                        class="sr-only peer"
+                    />
+                    <div
+                        class="w-5 h-5 box flex items-center justify-center text-text text-sm leading-none peer-checked:after:content-['✕'] after:content-['']"
+                    ></div>
+                </label>
+                <button
+                    class="box"
+                    onclick={installWm}
+                    disabled={isWmInstalling || isWmInstalled}
+                    >{isWmInstalling ? "Working..." : "Install"}</button
+                >
+                <button class="box" disabled title="not implemented">Update</button>
+                <button
+                    class="box"
+                    onclick={removeWm}
+                    disabled={!isWmInstalled || isWmInstalling}>Remove</button
+                >
                 <button
                     class="box"
                     onclick={() =>

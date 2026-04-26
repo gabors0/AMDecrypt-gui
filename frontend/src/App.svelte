@@ -7,6 +7,7 @@
   import { EventsOn } from "../wailsjs/runtime/runtime";
   import { appendLog, log } from "./lib/logStore.svelte";
   import { setRunning } from "./lib/amdStore.svelte";
+  import { setWmRunning } from "./lib/wmStore.svelte";
 
   let currentRoute = $state("setup");
 
@@ -18,11 +19,15 @@
     const unsub1 = EventsOn("log", (msg: string) => appendLog(msg));
     const unsub2 = EventsOn("amd:started", () => setRunning(true));
     const unsub3 = EventsOn("amd:stopped", () => setRunning(false));
+    const unsub4 = EventsOn("wm:started", () => setWmRunning(true));
+    const unsub5 = EventsOn("wm:stopped", () => setWmRunning(false));
 
     return () => {
       unsub1();
       unsub2();
       unsub3();
+      unsub4();
+      unsub5();
     };
   });
 

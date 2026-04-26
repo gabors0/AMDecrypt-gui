@@ -11,12 +11,12 @@
 - Made with Wails
 - Checks dependencies needed to run AppleMusicDecrypt/wrapper-manager
 - Automatically installs and sets up (or removes) AppleMusicDecrpyt (clone, venv, pip install, etc.)
+- Automatically installs and sets up (or removes) wrapper-manager (clone, docker compose up)
 - Opens AppleMusicDecrypt in a seperate window with one click
 - Command builder
 
 ### Todo
 - Windows support
-- Ability to manage wrapper manager too
 - Automatically update both modules
 - Upload pre-compiled binaries
 

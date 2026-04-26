@@ -26,12 +26,24 @@ export function GetSettings() {
   return window['go']['app']['App']['GetSettings']();
 }
 
+export function GetVersion() {
+  return window['go']['app']['App']['GetVersion']();
+}
+
 export function IsAmdRunning() {
   return window['go']['app']['App']['IsAmdRunning']();
 }
 
+export function IsWmRunning() {
+  return window['go']['app']['App']['IsWmRunning']();
+}
+
 export function KillAmd() {
   return window['go']['app']['App']['KillAmd']();
+}
+
+export function KillWm() {
+  return window['go']['app']['App']['KillWm']();
 }
 
 export function OpenAppDataDir() {
@@ -48,6 +60,10 @@ export function RemoveAmd() {
 
 export function RemoveBento4() {
   return window['go']['app']['App']['RemoveBento4']();
+}
+
+export function RemoveWm() {
+  return window['go']['app']['App']['RemoveWm']();
 }
 
 export function RunCmd(arg1) {
@@ -70,12 +86,24 @@ export function SetupBento4() {
   return window['go']['app']['App']['SetupBento4']();
 }
 
+export function SetupWm() {
+  return window['go']['app']['App']['SetupWm']();
+}
+
 export function StartAmd() {
   return window['go']['app']['App']['StartAmd']();
 }
 
+export function StartWm(arg1) {
+  return window['go']['app']['App']['StartWm'](arg1);
+}
+
 export function StopAmd() {
   return window['go']['app']['App']['StopAmd']();
+}
+
+export function StopWm() {
+  return window['go']['app']['App']['StopWm']();
 }
 
 export function WhichCmd(arg1) {
