@@ -52,11 +52,12 @@
 </script>
 
 <div class="flex flex-col h-full w-full bg-bg text-text">
-  <nav class="flex flex-row divide-x divide-accent bg-bg border-b border-accent">
+  <nav class="flex flex-row divide-x divide-accent bg-bg">
     {#each tabs as tab}
       <button
-        class="px-5 flex-1 py-2.5 text-sm"
-        class:bg-bgmuted={currentRoute === tab.id}
+        class="px-5 flex-1 py-2.5 text-sm border-b border-accent"
+        class:border-b-bg={currentRoute === tab.id}
+        class:hover:border-b-bgactive={currentRoute === tab.id}
         class:text-text={currentRoute === tab.id}
         class:text-textmuted={currentRoute !== tab.id}
         class:hover:text-text={currentRoute !== tab.id}

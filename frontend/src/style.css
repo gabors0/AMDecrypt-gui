@@ -67,6 +67,46 @@ body,
   width: 100%;
   height: 100%;
   font-family: "Oxanium", monospace;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  overflow: hidden;
+}
+
+::selection {
+  @apply bg-text text-bg;
+}
+
+::-moz-selection {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+a,
+button,
+label,
+img {
+  -webkit-user-drag: none;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+button:not(.box):focus,
+button:not(.box):focus-visible,
+a:focus,
+a:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 button {
@@ -88,7 +128,35 @@ button:disabled:hover {
 }
 
 .box {
-  @apply bg-bgmuted text-text outline outline-offset-0 outline-accent focus-visible:bg-bgactive focus-visible:outline-1 focus-visible:outline-accent;
+  @apply bg-bgmuted text-text outline outline-offset-0 outline-accent;
+} AppleMusicDecrypt: installed
+[6:42:35 PM] [INFO] Read instance config: url=127.0.0.1:8080, secure=false
+[6:42:35 PM] [INFO] wrapper-manager: installed
+[6:42:35 PM] [INFO] Status check complete!
+[6:42:35 PM] [INFO] (Re-)Checking status...
+[6:42:35 PM] [INFO] Read instance config: url=127.0.0.1:8080, secure=false
+[6:42:35 PM] [INFO] Docker: Docker version 29.4.0, build 1.fc43
+[6:42:35 PM] [INFO] Go: go version go1.25.9 X:nodwarf5 linux/amd64
+[6:42:35 PM] [INFO] Python: Python 3.14.4
+[6:42:35 PM] [INFO] ffmpeg: ffmpeg version 7.1.2 Copyright (c) 2000-2025 the FFmpeg developers
+[6:42:35 PM] [INFO] gpac: gpac - GPAC command line filter engine - version 2.4-revrelease
+[6:42:35 PM] [INFO] mp4decrypt: /home/gabor/.local/bin/mp4decrypt
+[6:42:35 PM] [INFO] AppleMusicDecrypt: installed
+[6:42:35 PM] [INFO] Read instance config: url=127.0.0
+
+input.box:focus,
+input.box:focus-visible,
+textarea.box:focus,
+textarea.box:focus-visible,
+select.box:focus,
+select.box:focus-visible {
+  @apply bg-bgactive outline-1 outline-accent;
+}
+
+button.box:focus,
+button.box:focus-visible,
+button.box:active {
+  @apply outline outline-offset-0 outline-accent;
 }
 
 input::placeholder,

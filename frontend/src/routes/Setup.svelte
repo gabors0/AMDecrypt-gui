@@ -337,7 +337,7 @@
     <h2 class="col-span-2 box p-2 text-xl flex items-center justify-between">
         <span
             >Status: <span
-                class="font-bold p-1 px-2 text-bg {isReady ? 'bg-themegreen' : 'bg-themered'}"
+                class="font-bold p-1 px-2 text-bg leading-none {isReady ? 'bg-themegreen' : 'bg-themered'}"
                 >{isReady ? "Ready" : "Not ready"}</span
             ></span
         ><Indicator status={isReady ? "green" : "red"} />
@@ -427,7 +427,7 @@
                     >
                 </div>
                 <label class="flex items-center justify-between cursor-pointer">
-                    <span>Verbose logs</span>
+                    <span>Log into app logs</span>
                     <input
                         type="checkbox"
                         checked={wmVerbose}
@@ -444,7 +444,7 @@
                     disabled={isWmInstalling || isWmInstalled}
                     >{isWmInstalling ? "Working..." : "Install"}</button
                 >
-                <button class="box" disabled title="not implemented">Update</button>
+                <button class="box" disabled title="not implemented (in the meantime, reinstalling will get the latest version)">Update</button>
                 <button
                     class="box"
                     onclick={removeWm}
@@ -502,7 +502,7 @@
                 disabled={isAmdInstalling || isAmdInstalled}
                 >{isAmdInstalling ? "Working..." : "Install"}</button
             >
-            <button class="box" disabled title="not implemented">Update</button>
+            <button class="box" disabled title="not implemented (in the meantime, reinstalling will get the latest version)">Update</button>
             <button
                 class="box"
                 onclick={removeAmd}
@@ -553,12 +553,12 @@
                             <span class="text-xs invisible">_</span>
                         {:else if pythonStatus.installed}
                             <span
-                                class="bg-themegreen p-1 text-bg font-bold text-center w-20"
+                                class="bg-themegreen py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Installed</span
                             >
                         {:else}
                             <span
-                                class="bg-themered p-1 text-bg font-bold text-center w-20"
+                                class="bg-themered py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Not found</span
                             >
                         {/if}
@@ -572,12 +572,12 @@
                             <span class="text-xs invisible">_</span>
                         {:else if ffmpegStatus.installed}
                             <span
-                                class="bg-themegreen p-1 text-bg font-bold text-center w-20"
+                                class="bg-themegreen py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Installed</span
                             >
                         {:else}
                             <span
-                                class="bg-themered p-1 text-bg font-bold text-center w-20"
+                                class="bg-themered py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Not found</span
                             >
                         {/if}
@@ -591,12 +591,12 @@
                             <span class="text-xs invisible">_</span>
                         {:else if gpacStatus.installed}
                             <span
-                                class="bg-themegreen p-1 text-bg font-bold text-center w-20"
+                                class="bg-themegreen py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Installed</span
                             >
                         {:else}
                             <span
-                                class="bg-themered p-1 text-bg font-bold text-center w-20"
+                                class="bg-themered py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Not found</span
                             >
                         {/if}
@@ -641,12 +641,12 @@
                             <span class="text-xs invisible">_</span>
                         {:else if bento4Status.installed}
                             <span
-                                class="bg-themegreen p-1 text-bg font-bold text-center w-20"
+                                class="bg-themegreen py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Installed</span
                             >
                         {:else}
                             <span
-                                class="bg-themered p-1 text-bg font-bold text-center w-20"
+                                class="bg-themered py-1.5 text-bg font-bold text-center w-20 leading-none"
                                 >Not found</span
                             >
                         {/if}
@@ -663,12 +663,12 @@
                                 <span class="text-xs invisible">_</span>
                             {:else if dockerStatus.installed}
                                 <span
-                                    class="bg-themegreen p-1 text-bg font-bold text-center w-20"
+                                    class="bg-themegreen py-1.5 text-bg font-bold text-center w-20 leading-none"
                                     >Installed</span
                                 >
                             {:else}
                                 <span
-                                    class="bg-themered p-1 text-bg font-bold text-center w-20"
+                                    class="bg-themered py-1.5 text-bg font-bold text-center w-20 leading-none"
                                     >Not found</span
                                 >
                             {/if}
@@ -683,12 +683,12 @@
                                 <span class="text-textmuted">Not checked</span>
                             {:else if goStatus.installed}
                                 <span
-                                    class="bg-themegreen p-1 text-bg font-bold text-center w-20"
+                                    class="bg-themegreen py-1.5 text-bg font-bold text-center w-20 leading-none"
                                     >Installed</span
                                 >
                             {:else}
                                 <span
-                                    class="bg-themered p-1 text-bg font-bold text-center w-20"
+                                    class="bg-themered py-1.5 text-bg font-bold text-center w-20 leading-none"
                                     >Not found</span
                                 >
                             {/if}
