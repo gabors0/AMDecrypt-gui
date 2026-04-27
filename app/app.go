@@ -20,17 +20,17 @@ import (
 //go:embed amd_pip_requirements.txt
 var pipRequirements []byte
 
-const Version = "0.1.3"
+const Version = "0.1.4"
 
 type App struct {
-	ctx     context.Context
-	mu      sync.Mutex
+	ctx        context.Context
+	mu         sync.Mutex
 	amdCmd     *exec.Cmd
 	amdRunning bool
 	amdDone    chan struct{}
-	wmCmd     *exec.Cmd
-	wmRunning bool
-	wmDone    chan struct{}
+	wmCmd      *exec.Cmd
+	wmRunning  bool
+	wmDone     chan struct{}
 }
 
 func NewApp() *App {

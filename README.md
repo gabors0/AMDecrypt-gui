@@ -20,31 +20,46 @@
 - Automatically update both modules
 - Upload pre-compiled binaries
 
-### Installation
-1. Have Go and Wails installed *(on Linux, libgtk-3-dev and libwebkit2gtk-4.1-dev are probably required to build.)*
+<details>
+<summary><b>Linux: Installation (or update)</b></summary>
+
+- Have Go, Node/npm and Wails installed *(on Linux, libgtk-3-dev and libwebkit2gtk-4.1-dev are probably required to build.)*
 ```bash
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 ```
-2. Clone the repo
+- Easy install: run the bootstrap installer
+```bash
+curl -fsSL https://raw.githubusercontent.com/gabors0/AMDecrypt-gui/main/install.sh | sh
+```
+This clones the repo into a temporary directory, builds it, installs the app, and removes the build files afterward.
+
+- Manual install: build/install from a local clone
 ```bash
 git clone https://github.com/gabors0/AMDecrypt-gui.git
 cd AMDecrypt-gui
-```
-3. Build
-```bash
 wails build #-tags webkit2_41 for some linux systems
+sudo ./scripts/install-built.sh
 ```
-4. Install using install.sh (or run directly from build/bin/AMDecrypt-gui)
+
+</details>
+
+<details>
+<summary><b>Uninstallation</b></summary>
+
+- Clone the repo if not done already
+- Run the uninstall script inside the project folder
 ```bash
-sudo ./install.sh
+sudo ./uninstall.sh
 ```
+
+</details>
 
 ### Platform Compatibility
 
 | Platform | Supported?
 |----------|--------|
 | Linux (tested on Fedora & Arch) | ✔ |
-| Windows  | - |
+| Windows  | Planned |
 | macOS    | - |
 
 ### Screenshots
