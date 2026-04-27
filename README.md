@@ -4,7 +4,7 @@
     <h4>A cross-platform app made to easily install and use <a href="https://github.com/WorldObservationLog/AppleMusicDecrypt">AppleMusicDecrypt</a>, currently in development</h4>
 </div>
 
-> [!NOTE]
+> [!IMPORTANT]
 > This project **uses (but does not modify, bundle, or embed)** [AppleMusicDecrypt](https://github.com/WorldObservationLog/AppleMusicDecrypt) and [wrapper-manager](https://github.com/WorldObservationLog/wrapper-manager) both made by @WorldObservationLog and released under the **AGPL-3.0 license**. AMDecrypt-gui is released under the MIT license.
 
 ### Features
@@ -20,8 +20,10 @@
 - Automatically update both modules
 - Upload pre-compiled binaries
 
+### Installation
+
 <details>
-<summary><b>Linux: Installation (or update)</b></summary>
+<summary><b>Linux</b></summary>
 
 - Have Go, Node/npm and Wails installed *(on Linux, libgtk-3-dev and libwebkit2gtk-4.1-dev are probably required to build.)*
 ```bash
@@ -44,7 +46,7 @@ sudo ./scripts/install-built.sh
 </details>
 
 <details>
-<summary><b>Uninstallation</b></summary>
+<summary><b>Uninstall</b></summary>
 
 - Clone the repo if not done already
 - Run the uninstall script inside the project folder
@@ -61,6 +63,11 @@ sudo ./uninstall.sh
 | Linux (tested on Fedora & Arch) | ✔ |
 | Windows  | Planned |
 | macOS    | - |
+
+<details>
+    <summary><b>Note on macOS</b></summary>
+    Builds, but AMD can't be started using the gui. Installation is also probably broken. I don't own a mac so this is untested, however if you stumble upon this and need mac support, feel free to open a PR!
+</details>
 
 ### Screenshots
 Main screen             |  Command builder
