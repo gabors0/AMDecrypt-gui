@@ -480,7 +480,7 @@ func (a *App) GetInstanceConfig() (*InstanceConfig, error) {
 	}
 	data, err := os.ReadFile(filepath.Join(appDataDir, "amd", "config.toml"))
 	if err != nil {
-		a.EmitLog("[ERROR] Failed to read config.toml: " + err.Error())
+		a.EmitLog("[ERROR] Failed to read config.toml (make sure AppleMusicDecrypt is installed first!): " + err.Error())
 		return nil, err
 	}
 	cfg := &InstanceConfig{}
@@ -517,7 +517,7 @@ func (a *App) SetInstanceConfig(url string, secure bool) error {
 	configPath := filepath.Join(appDataDir, "amd", "config.toml")
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		a.EmitLog("[ERROR] Failed to read config.toml: " + err.Error())
+		a.EmitLog("[ERROR] Failed to read config.toml (make sure AppleMusicDecrypt is installed first!): " + err.Error())
 		return err
 	}
 	lines := strings.Split(string(data), "\n")
