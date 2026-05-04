@@ -10,7 +10,7 @@
     class="popup pointer-events-none absolute z-99 px-2 py-1 text-sm {long
       ? 'min-w-64'
       : ''}
-               bg-bgmuted border border-accent text-text
+               bg-bg-muted border border-border text-text
                whitespace-pre-line opacity-0 hover:opacity-100 transition-opacity duration-200
                {position === 'top'
       ? 'bottom-full mb-2 left-1/2 -translate-x-1/2'

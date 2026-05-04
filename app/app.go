@@ -20,7 +20,7 @@ import (
 //go:embed amd_pip_requirements.txt
 var pipRequirements []byte
 
-const Version = "0.1.4"
+const Version = "0.2.0"
 
 type App struct {
 	ctx        context.Context
@@ -254,7 +254,7 @@ func (a *App) RemoveBento4() {
 	managedPath := strings.TrimSpace(settings.Bento4.Mp4decryptPath)
 	managedDir := strings.TrimSpace(settings.Bento4.BinDir)
 	if managedPath == "" || managedDir == "" {
-		a.EmitLog("[INFO] Bento4 uninstall skipped: no app-managed install path in settings.jsonc")
+		a.EmitLog("[ERROR] Bento4 uninstall skipped: no app-managed install path in settings.jsonc")
 		return
 	}
 
@@ -265,7 +265,7 @@ func (a *App) RemoveBento4() {
 	}
 
 	if filepath.Clean(currentPath) != filepath.Clean(managedPath) {
-		a.EmitLog("[INFO] Bento4 uninstall skipped: only app-installed Bento4 can be removed")
+		a.EmitLog("[ERROR] Bento4 uninstall skipped: only app-installed Bento4 can be removed")
 		a.EmitLog("[INFO] managed=" + managedPath)
 		a.EmitLog("[INFO] current=" + currentPath)
 		return

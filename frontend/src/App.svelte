@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Commands from "./routes/Commands.svelte";
   import Console from "./routes/Console.svelte";
+  import Overview from "./routes/Overview.svelte";
   import Setup from "./routes/Setup.svelte";
   import About from "./routes/About.svelte";
   import { EventsOn } from "../wailsjs/runtime/runtime";
@@ -9,7 +10,7 @@
   import { setRunning } from "./lib/amdStore.svelte";
   import { setWmRunning } from "./lib/wmStore.svelte";
 
-  let currentRoute = $state("setup");
+  let currentRoute = $state("overview");
 
   if (localStorage.getItem("theme") === "light") {
     document.documentElement.setAttribute("data-theme", "light");
@@ -44,22 +45,23 @@
   });
 
   const tabs = [
+    { id: "overview", label: "Overview" },
     { id: "setup", label: "Setup" },
-    { id: "commands", label: "Command Builder" },
+    { id: "commands", label: "Commands" },
     { id: "logs", label: "Logs" },
     { id: "about", label: "About" },
   ];
 </script>
 
 <div class="flex flex-col h-full w-full bg-bg text-text">
-  <nav class="flex flex-row divide-x divide-accent bg-bg">
+  <nav class="flex flex-row divide-x divide-border bg-bg">
     {#each tabs as tab}
       <button
-        class="px-5 flex-1 py-2.5 text-sm border-b border-accent"
+        class="px-5 flex-1 py-2.5 text-sm border-b border-border"
         class:border-b-bg={currentRoute === tab.id}
-        class:hover:border-b-bgactive={currentRoute === tab.id}
+        class:hover:border-b-bg-active={currentRoute === tab.id}
         class:text-text={currentRoute === tab.id}
-        class:text-textmuted={currentRoute !== tab.id}
+        class:text-text-muted={currentRoute !== tab.id}
         class:hover:text-text={currentRoute !== tab.id}
         class:hover:bg-bg={currentRoute !== tab.id}
         class:error={tab.id === "logs" && log.hasError}
@@ -70,7 +72,9 @@
     {/each}
   </nav>
   <main class="flex-1 overflow-auto">
-    {#if currentRoute === "setup"}
+    {#if currentRoute === "overview"}
+      <Overview />
+    {:else if currentRoute === "setup"}
       <Setup />
     {:else if currentRoute === "commands"}
       <Commands />

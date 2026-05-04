@@ -52,9 +52,9 @@
 <div class="grid max-w-2xl mx-auto p-4 gap-4 mt-4">
     <div class="box flex flex-col w-full">
         <h1 class="p-2 text-xl">Command output</h1>
-        <hr class="w-full border-accent" />
+        <hr class="w-full border-border" />
         <div class="p-2 flex flex-col gap-2">
-            <input type="text" value={currentCommand} readonly class="text-xl box p-2 w-full cursor-text focus:!bg-bgmuted" />
+            <input type="text" value={currentCommand} readonly class="text-xl box p-2 w-full cursor-text focus:!bg-bg-muted" />
             <button class="w-full box p-2" onclick={copyCommand}>{copyFeedback ? "Copied!" : "Copy to clipboard"}</button>
         </div>
     </div>
@@ -68,7 +68,7 @@
                 Download
                 <Indicator status={selectedMode === 'download' ? 'green' : 'off'} />
             </label>
-            <hr class="w-full border-accent" />
+            <hr class="w-full border-border" />
             <div class="p-2 flex flex-col items-center gap-2">
                 <!-- download link -->
                 <input type="text" class="box p-2 text-sm w-full" placeholder="Artist/album/playlist/song link(s) // Separate with space" bind:value={downloadUrls} />
@@ -83,7 +83,7 @@
                     <span>Codec</span>
                     <div class="flex flex-wrap justify-end">
                         {#each codecs as opt}
-                            <label class="box px-2 py-1 text-sm cursor-pointer hover:bg-bgactive! {downloadCodec === opt.value ? 'bg-bgactive!' : ''}">
+                            <label class="box px-2 py-1 text-sm cursor-pointer hover:bg-bg-active! {downloadCodec === opt.value ? 'bg-bg-active!' : ''}">
                                 <input type="radio" name="downloadCodec" value={opt.value} bind:group={downloadCodec} class="sr-only" />
                                 {opt.label}
                             </label>
@@ -117,7 +117,7 @@
                 <span>Quality <span class="underline cursor-help"><Popup long text="Checks which qualities are available for the given link." position="bottom">[?]</Popup></span></span>
                 <Indicator status={selectedMode === 'quality' ? 'green' : 'off'} />
             </label>
-            <hr class="w-full border-accent" />
+            <hr class="w-full border-border" />
             <div class="p-2 flex flex-col items-center gap-2">
                 <input type="text" class="box p-2 text-sm w-full" placeholder="Song/album/playlist URL" bind:value={qualityUrl} />
             </div>

@@ -148,6 +148,62 @@ func (a *App) KillAmd() error {
 	return nil
 }
 
+func (a *App) LoginAmd() error {
+	return a.runAmdToolInTerminal("login.py", "login")
+}
+
+func (a *App) LogoutAmd() error {
+	return a.runAmdToolInTerminal("logout.py", "logout")
+}
+
+func (a *App) runAmdToolInTerminal(script, label string) error {
+	a.EmitLog("[INFO] Launching AMD " + label + "...")
+
+	appDataDir, err := a.GetAppDataDir()
+	if err != nil {
+		a.EmitLog("[ERROR] Failed to get app data dir: " + err.Error())
+		return fmt.Errorf("failed to get app data dir: %w", err)
+	}
+
+	amdDir := filepath.Join(appDataDir, "amd")
+	pythonBin := filepath.Join(amdDir, "venv", "bin", "python")
+	scriptRel := filepath.Join("tools", script)
+
+	if _, err := os.Stat(pythonBin); err != nil {
+		a.EmitLog("[ERROR] Python venv not found at " + pythonBin)
+		return fmt.Errorf("python not found at %s: %w", pythonBin, err)
+	}
+	if _, err := os.Stat(filepath.Join(amdDir, scriptRel)); err != nil {
+		a.EmitLog("[ERROR] Script not found: " + scriptRel)
+		return fmt.Errorf("script not found: %w", err)
+	}
+
+	settings, _ := a.GetSettings()
+	termBin, termArgs, err := findTerminal(settings.Terminal)
+	if err != nil {
+		a.EmitLog("[ERROR] " + err.Error())
+		return err
+	}
+	a.EmitLog("[INFO] Using terminal: " + termBin)
+
+	runCmd := fmt.Sprintf("cd %q && %q %q; echo; echo 'Done, press Enter to close.'; read", amdDir, pythonBin, scriptRel)
+	args := append(termArgs, "bash", "-c", runCmd)
+	cmd := exec.Command(termBin, args...)
+	cmd.Dir = amdDir
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	if err := cmd.Start(); err != nil {
+		a.EmitLog("[ERROR] Failed to start terminal: " + err.Error())
+		return fmt.Errorf("failed to start terminal: %w", err)
+	}
+
+	// Reap the terminal process so it doesn't become a zombie.
+	go func() { _ = cmd.Wait() }()
+
+	a.EmitLog("[SUCCESS] " + label + " launched in external terminal (" + termBin + ")")
+	return nil
+}
+
 func (a *App) StartWm(verbose bool) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()

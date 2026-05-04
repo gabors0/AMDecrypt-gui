@@ -46,6 +46,14 @@ export function KillWm() {
   return window['go']['app']['App']['KillWm']();
 }
 
+export function LoginAmd() {
+  return window['go']['app']['App']['LoginAmd']();
+}
+
+export function LogoutAmd() {
+  return window['go']['app']['App']['LogoutAmd']();
+}
+
 export function OpenAppDataDir() {
   return window['go']['app']['App']['OpenAppDataDir']();
 }

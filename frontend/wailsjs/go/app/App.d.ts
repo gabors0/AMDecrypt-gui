@@ -24,6 +24,10 @@ export function KillAmd():Promise<void>;
 
 export function KillWm():Promise<void>;
 
+export function LoginAmd():Promise<void>;
+
+export function LogoutAmd():Promise<void>;
+
 export function OpenAppDataDir():Promise<void>;
 
 export function OpenDownloadsDir():Promise<void>;

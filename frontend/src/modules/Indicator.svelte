@@ -10,20 +10,20 @@
 
   const colorMap: Record<Status, StatusColors> = {
     green: {
-      primary: "var(--color-themegreen)",
-      secondary: "var(--color-themegreenmuted)",
+      primary: "var(--color-green)",
+      secondary: "var(--color-green-dim)",
     },
     yellow: {
-      primary: "var(--color-themeyellow)",
-      secondary: "var(--color-themeyellowmuted)",
+      primary: "var(--color-yellow)",
+      secondary: "var(--color-yellow-dim)",
     },
     red: {
-      primary: "var(--color-themered)",
-      secondary: "var(--color-themeredmuted)",
+      primary: "var(--color-red)",
+      secondary: "var(--color-red-dim)",
     },
     off: {
-      primary: "var(--color-themegray)",
-      secondary: "var(--color-themegraymuted)",
+      primary: "var(--color-text-dim)",
+      secondary: "var(--color-border-dim)",
     },
   };
 
@@ -31,6 +31,6 @@
 </script>
 
 <div
-  class="w-6 h-6 border border-accent"
+  class="w-6 h-6 border border-border"
   style="background: repeating-linear-gradient(-45deg, {colors.secondary}, {colors.secondary} 3px, {colors.primary} 3px, {colors.primary} 6px);"
 ></div>

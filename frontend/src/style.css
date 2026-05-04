@@ -2,111 +2,160 @@
 
 /* oxanium-regular - latin */
 @font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Oxanium";
-  font-style: normal;
-  font-weight: 400;
-  src: url("./assets/fonts/oxanium-v21-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Oxanium";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./assets/fonts/oxanium-v21-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 /* oxanium-700 - latin */
 @font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Oxanium";
-  font-style: normal;
-  font-weight: 700;
-  src: url("./assets/fonts/oxanium-v21-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Oxanium";
+    font-style: normal;
+    font-weight: 700;
+    src: url("./assets/fonts/oxanium-v21-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* monda-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Monda";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./assets/fonts/monda-v19-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* monda-700 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: "Monda";
+    font-style: normal;
+    font-weight: 700;
+    src: url("./assets/fonts/monda-v19-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 @theme {
-    /* https://colorpalette.pro/?color=oklch%2840%25+0.04+157%29&paletteType=tas&paletteStyle=square&colorFormat=oklch&effects=0%2C0%2C0%2C0 */
-    --color-bg: oklch(12% 0.04 157);
-    --color-bgmuted: oklch(16% 0.04 157);
-    --color-bgactive: oklch(30% 0.04 157);
-    --color-accent: oklch(38% 0.04 157);
-    --color-text: oklch(98% 0.04 157);
-    --color-textmuted: oklch(60% 0.04 157);
-    
-    --color-themered: oklch(50% 0.15 25);
-    --color-themeredmuted: oklch(15% 0.12 25);
-    
-    --color-themegreen: oklch(70% 0.2 175);
-    --color-themegreenmuted: oklch(20% 0.15 175);
-    
-    --color-themeyellow: oklch(60% 0.1 100);
-    --color-themeyellowmuted: oklch(15% 0.08 100);
-    
-    --color-themegray: oklch(30% 0 157);
-    --color-themegraymuted: oklch(15% 0 157);
+    --color-bg: oklch(20% 0.008 351);
+    --color-bg-muted: oklch(24% 0.008 351);
+    --color-bg-raise: oklch(27% 0.009 351);
+    --color-bg-active: oklch(33% 0.009 351);
+    --color-border: oklch(38% 0.01 351);
+    --color-border-dim: oklch(30% 0.008 351);
+    --color-text: oklch(94% 0.006 351);
+    --color-text-muted: oklch(58% 0.008 351);
+    --color-text-dim: oklch(45% 0.008 351);
+
+    --color-green: oklch(68% 0.19 158);
+    --color-green-dim: oklch(22% 0.12 158);
+    --color-green-mid: oklch(40% 0.15 158);
+    --color-red: oklch(54% 0.17 25);
+    --color-red-dim: oklch(18% 0.12 25);
+    --color-yellow: oklch(70% 0.13 82);
+    --color-yellow-dim: oklch(20% 0.1 82);
+
+    /*
+     * legacy palette:
+     * --color-bg: oklch(12% 0.04 157);
+     * --color-bgmuted: oklch(16% 0.04 157);
+     * --color-bgactive: oklch(30% 0.04 157);
+     * --color-accent: oklch(38% 0.04 157);
+     * --color-text: oklch(98% 0.04 157);
+     * --color-textmuted: oklch(60% 0.04 157);
+     * --color-themered: oklch(50% 0.15 25);
+     * --color-themeredmuted: oklch(15% 0.12 25);
+     * --color-themegreen: oklch(70% 0.2 175);
+     * --color-themegreenmuted: oklch(20% 0.15 175);
+     * --color-themeyellow: oklch(60% 0.1 100);
+     * --color-themeyellowmuted: oklch(15% 0.08 100);
+     * --color-themegray: oklch(30% 0 157);
+     * --color-themegraymuted: oklch(15% 0 157);
+     *
+     * legacy light palette:
+     * --color-bg: oklch(94% 0.02 157);
+     * --color-bgmuted: oklch(98% 0.02 157);
+     * --color-bgactive: oklch(87% 0.04 157);
+     * --color-accent: oklch(38% 0.04 157);
+     * --color-text: oklch(12% 0.04 157);
+     * --color-textmuted: oklch(40% 0.04 157);
+     * --color-themered: oklch(50% 0.15 25);
+     * --color-themeredmuted: oklch(70% 0.12 25);
+     * --color-themegreen: oklch(50% 0.2 175);
+     * --color-themegreenmuted: oklch(70% 0.15 175);
+     * --color-themeyellow: oklch(60% 0.1 100);
+     * --color-themeyellowmuted: oklch(70% 0.08 100);
+     * --color-themegray: oklch(50% 0 157);
+     * --color-themegraymuted: oklch(70% 0 157);
+     */
 }
 
 [data-theme="light"] {
-    --color-bg: oklch(94% 0.02 157);
-    --color-bgmuted: oklch(98% 0.02 157);
-    --color-bgactive: oklch(87% 0.04 157);
-    --color-accent: oklch(38% 0.04 157);
-    --color-text: oklch(12% 0.04 157);
-    --color-textmuted: oklch(40% 0.04 157);
-    
-    --color-themered: oklch(50% 0.15 25);
-    --color-themeredmuted: oklch(70% 0.12 25);
-    
-    --color-themegreen: oklch(50% 0.2 175);
-    --color-themegreenmuted: oklch(70% 0.15 175);
-    
-    --color-themeyellow: oklch(60% 0.1 100);
-    --color-themeyellowmuted: oklch(70% 0.08 100);
-    
-    --color-themegray: oklch(50% 0 157);
-    --color-themegraymuted: oklch(70% 0 157);
+    --color-bg: oklch(96% 0.006 351);
+    --color-bg-muted: oklch(92% 0.008 351);
+    --color-bg-raise: oklch(89% 0.009 351);
+    --color-bg-active: oklch(84% 0.01 351);
+    --color-border: oklch(74% 0.012 351);
+    --color-border-dim: oklch(86% 0.008 351);
+    --color-text: oklch(20% 0.008 351);
+    --color-text-muted: oklch(46% 0.008 351);
+    --color-text-dim: oklch(60% 0.008 351);
+
+    --color-green: oklch(42% 0.16 158);
+    --color-green-dim: oklch(90% 0.05 158);
+    --color-green-mid: oklch(68% 0.14 158);
+    --color-red: oklch(48% 0.16 25);
+    --color-red-dim: oklch(90% 0.045 25);
+    --color-yellow: oklch(52% 0.12 82);
+    --color-yellow-dim: oklch(91% 0.05 82);
 }
 
 html,
 body,
 #app {
-  width: 100%;
-  height: 100%;
-  font-family: "Oxanium", monospace;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: default;
-  -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    height: 100%;
+    font-family: "Monda", monospace;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  overflow: hidden;
+    overflow: hidden;
 }
 
 ::selection {
-  @apply bg-text text-bg;
+    @apply bg-text text-bg;
 }
 
 ::-moz-selection {
-  background-color: var(--color-text);
-  color: var(--color-bg);
+    background-color: var(--color-text);
+    color: var(--color-bg);
 }
 
 a,
 button,
 label,
 img {
-  -webkit-user-drag: none;
+    -webkit-user-drag: none;
 }
 
 input,
 textarea,
 select,
 [contenteditable="true"] {
-  user-select: text;
-  -webkit-user-select: text;
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 button:not(.box):focus,
 button:not(.box):focus-visible,
 a:focus,
 a:focus-visible {
-  outline: none;
-  box-shadow: none;
+    outline: none;
+    box-shadow: none;
 }
 
 button {
@@ -114,35 +163,22 @@ button {
 }
 
 button:hover {
-  @apply bg-bgactive;
+    @apply bg-bg-active;
 }
 
 button:disabled {
-  @apply text-textmuted;
+    @apply text-text-muted;
 }
 
 button:disabled:hover {
-  @apply text-textmuted;
-  @apply bg-bgmuted;
-  @apply cursor-not-allowed;
+    @apply text-text-muted;
+    @apply bg-bg-muted;
+    @apply cursor-not-allowed;
 }
 
 .box {
-  @apply bg-bgmuted text-text outline outline-offset-0 outline-accent;
-} AppleMusicDecrypt: installed
-[6:42:35 PM] [INFO] Read instance config: url=127.0.0.1:8080, secure=false
-[6:42:35 PM] [INFO] wrapper-manager: installed
-[6:42:35 PM] [INFO] Status check complete!
-[6:42:35 PM] [INFO] (Re-)Checking status...
-[6:42:35 PM] [INFO] Read instance config: url=127.0.0.1:8080, secure=false
-[6:42:35 PM] [INFO] Docker: Docker version 29.4.0, build 1.fc43
-[6:42:35 PM] [INFO] Go: go version go1.25.9 X:nodwarf5 linux/amd64
-[6:42:35 PM] [INFO] Python: Python 3.14.4
-[6:42:35 PM] [INFO] ffmpeg: ffmpeg version 7.1.2 Copyright (c) 2000-2025 the FFmpeg developers
-[6:42:35 PM] [INFO] gpac: gpac - GPAC command line filter engine - version 2.4-revrelease
-[6:42:35 PM] [INFO] mp4decrypt: /home/gabor/.local/bin/mp4decrypt
-[6:42:35 PM] [INFO] AppleMusicDecrypt: installed
-[6:42:35 PM] [INFO] Read instance config: url=127.0.0
+    @apply bg-bg-muted text-text outline outline-offset-0 outline-border;
+}
 
 input.box:focus,
 input.box:focus-visible,
@@ -150,22 +186,22 @@ textarea.box:focus,
 textarea.box:focus-visible,
 select.box:focus,
 select.box:focus-visible {
-  @apply bg-bgactive outline-1 outline-accent;
+    @apply bg-bg-active outline-1 outline-border;
 }
 
 button.box:focus,
 button.box:focus-visible,
 button.box:active {
-  @apply outline outline-offset-0 outline-accent;
+    @apply outline outline-offset-0 outline-border;
 }
 
 input::placeholder,
 textarea::placeholder,
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
-  color: oklch(60% 0.04 157) !important;
-  opacity: 1 !important;
-  -webkit-text-fill-color: oklch(60% 0.04 157);
+    color: var(--color-text-muted) !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: var(--color-text-muted);
 }
 
 a {
@@ -173,9 +209,18 @@ a {
 }
 
 @keyframes error-flash {
-  0%, 100% { background-color: transparent; }
-  50% { background-color: color-mix(in oklch, var(--color-themered) 30%, transparent); }
+    0%,
+    100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: color-mix(
+            in oklch,
+            var(--color-red) 30%,
+            transparent
+        );
+    }
 }
 .error {
-  animation: error-flash .1s steps(1) infinite;
+    animation: error-flash 0.1s steps(1) infinite;
 }
