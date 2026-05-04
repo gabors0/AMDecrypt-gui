@@ -12,6 +12,7 @@
 - Checks dependencies needed to run AppleMusicDecrypt/wrapper-manager
 - Automatically installs and sets up (or removes) AppleMusicDecrpyt (clone, venv, pip install, etc.)
 - Automatically installs and sets up (or removes) wrapper-manager (clone, docker compose up)
+- Run the login script with one click
 - Opens AppleMusicDecrypt in a seperate window with one click
 - Command builder
 
