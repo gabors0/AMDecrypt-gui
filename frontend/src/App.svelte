@@ -65,7 +65,10 @@
         class:hover:text-text={currentRoute !== tab.id}
         class:hover:bg-bg={currentRoute !== tab.id}
         class:error={tab.id === "logs" && log.hasError}
-        onclick={() => { currentRoute = tab.id; if (tab.id === "logs") log.hasError = false; }}
+        onclick={() => {
+          currentRoute = tab.id;
+          if (tab.id === "logs") log.hasError = false;
+        }}
       >
         {tab.label}
       </button>

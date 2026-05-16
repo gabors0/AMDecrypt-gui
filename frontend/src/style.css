@@ -2,60 +2,60 @@
 
 /* oxanium-regular - latin */
 @font-face {
-    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-    font-family: "Oxanium";
-    font-style: normal;
-    font-weight: 400;
-    src: url("./assets/fonts/oxanium-v21-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Oxanium";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/oxanium-v21-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 /* oxanium-700 - latin */
 @font-face {
-    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-    font-family: "Oxanium";
-    font-style: normal;
-    font-weight: 700;
-    src: url("./assets/fonts/oxanium-v21-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Oxanium";
+  font-style: normal;
+  font-weight: 700;
+  src: url("./assets/fonts/oxanium-v21-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 /* monda-regular - latin */
 @font-face {
-    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-    font-family: "Monda";
-    font-style: normal;
-    font-weight: 400;
-    src: url("./assets/fonts/monda-v19-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Monda";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/monda-v19-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 /* monda-700 - latin */
 @font-face {
-    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-    font-family: "Monda";
-    font-style: normal;
-    font-weight: 700;
-    src: url("./assets/fonts/monda-v19-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Monda";
+  font-style: normal;
+  font-weight: 700;
+  src: url("./assets/fonts/monda-v19-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
 @theme {
-    --color-bg: oklch(20% 0.008 351);
-    --color-bg-muted: oklch(24% 0.008 351);
-    --color-bg-raise: oklch(27% 0.009 351);
-    --color-bg-active: oklch(33% 0.009 351);
-    --color-border: oklch(38% 0.01 351);
-    --color-border-dim: oklch(30% 0.008 351);
-    --color-text: oklch(94% 0.006 351);
-    --color-text-muted: oklch(58% 0.008 351);
-    --color-text-dim: oklch(45% 0.008 351);
+  --color-bg: oklch(20% 0.008 351);
+  --color-bg-muted: oklch(24% 0.008 351);
+  --color-bg-raise: oklch(27% 0.009 351);
+  --color-bg-active: oklch(33% 0.009 351);
+  --color-border: oklch(38% 0.01 351);
+  --color-border-dim: oklch(30% 0.008 351);
+  --color-text: oklch(94% 0.006 351);
+  --color-text-muted: oklch(58% 0.008 351);
+  --color-text-dim: oklch(45% 0.008 351);
 
-    --color-green: oklch(68% 0.19 158);
-    --color-green-dim: oklch(22% 0.12 158);
-    --color-green-mid: oklch(40% 0.15 158);
-    --color-red: oklch(54% 0.17 25);
-    --color-red-dim: oklch(18% 0.12 25);
-    --color-yellow: oklch(70% 0.13 82);
-    --color-yellow-dim: oklch(20% 0.1 82);
+  --color-green: oklch(68% 0.19 158);
+  --color-green-dim: oklch(22% 0.12 158);
+  --color-green-mid: oklch(40% 0.15 158);
+  --color-red: oklch(54% 0.17 25);
+  --color-red-dim: oklch(18% 0.12 25);
+  --color-yellow: oklch(70% 0.13 82);
+  --color-yellow-dim: oklch(20% 0.1 82);
 
-    /*
+  /*
      * legacy palette:
      * --color-bg: oklch(12% 0.04 157);
      * --color-bgmuted: oklch(16% 0.04 157);
@@ -91,93 +91,93 @@
 }
 
 [data-theme="light"] {
-    --color-bg: oklch(96% 0.006 351);
-    --color-bg-muted: oklch(92% 0.008 351);
-    --color-bg-raise: oklch(89% 0.009 351);
-    --color-bg-active: oklch(84% 0.01 351);
-    --color-border: oklch(74% 0.012 351);
-    --color-border-dim: oklch(86% 0.008 351);
-    --color-text: oklch(20% 0.008 351);
-    --color-text-muted: oklch(46% 0.008 351);
-    --color-text-dim: oklch(60% 0.008 351);
+  --color-bg: oklch(96% 0.006 351);
+  --color-bg-muted: oklch(92% 0.008 351);
+  --color-bg-raise: oklch(89% 0.009 351);
+  --color-bg-active: oklch(84% 0.01 351);
+  --color-border: oklch(74% 0.012 351);
+  --color-border-dim: oklch(86% 0.008 351);
+  --color-text: oklch(20% 0.008 351);
+  --color-text-muted: oklch(46% 0.008 351);
+  --color-text-dim: oklch(60% 0.008 351);
 
-    --color-green: oklch(42% 0.16 158);
-    --color-green-dim: oklch(90% 0.05 158);
-    --color-green-mid: oklch(68% 0.14 158);
-    --color-red: oklch(48% 0.16 25);
-    --color-red-dim: oklch(90% 0.045 25);
-    --color-yellow: oklch(52% 0.12 82);
-    --color-yellow-dim: oklch(91% 0.05 82);
+  --color-green: oklch(42% 0.16 158);
+  --color-green-dim: oklch(90% 0.05 158);
+  --color-green-mid: oklch(68% 0.14 158);
+  --color-red: oklch(48% 0.16 25);
+  --color-red-dim: oklch(90% 0.045 25);
+  --color-yellow: oklch(52% 0.12 82);
+  --color-yellow-dim: oklch(91% 0.05 82);
 }
 
 html,
 body,
 #app {
-    width: 100%;
-    height: 100%;
-    font-family: "Monda", monospace;
-    user-select: none;
-    -webkit-user-select: none;
-    cursor: default;
-    -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  height: 100%;
+  font-family: "Monda", monospace;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 ::selection {
-    @apply bg-text text-bg;
+  @apply bg-text text-bg;
 }
 
 ::-moz-selection {
-    background-color: var(--color-text);
-    color: var(--color-bg);
+  background-color: var(--color-text);
+  color: var(--color-bg);
 }
 
 a,
 button,
 label,
 img {
-    -webkit-user-drag: none;
+  -webkit-user-drag: none;
 }
 
 input,
 textarea,
 select,
 [contenteditable="true"] {
-    user-select: text;
-    -webkit-user-select: text;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button:not(.box):focus,
 button:not(.box):focus-visible,
 a:focus,
 a:focus-visible {
-    outline: none;
-    box-shadow: none;
+  outline: none;
+  box-shadow: none;
 }
 
 button {
-    @apply cursor-pointer;
+  @apply cursor-pointer;
 }
 
 button:hover {
-    @apply bg-bg-active;
+  @apply bg-bg-active;
 }
 
 button:disabled {
-    @apply text-text-muted;
+  @apply text-text-muted;
 }
 
 button:disabled:hover {
-    @apply text-text-muted;
-    @apply bg-bg-muted;
-    @apply cursor-not-allowed;
+  @apply text-text-muted;
+  @apply bg-bg-muted;
+  @apply cursor-not-allowed;
 }
 
 .box {
-    @apply bg-bg-muted text-text outline outline-offset-0 outline-border;
+  @apply bg-bg-muted text-text outline outline-offset-0 outline-border;
 }
 
 input.box:focus,
@@ -186,41 +186,37 @@ textarea.box:focus,
 textarea.box:focus-visible,
 select.box:focus,
 select.box:focus-visible {
-    @apply bg-bg-active outline-1 outline-border;
+  @apply bg-bg-active outline-1 outline-border;
 }
 
 button.box:focus,
 button.box:focus-visible,
 button.box:active {
-    @apply outline outline-offset-0 outline-border;
+  @apply outline outline-offset-0 outline-border;
 }
 
 input::placeholder,
 textarea::placeholder,
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
-    color: var(--color-text-muted) !important;
-    opacity: 1 !important;
-    -webkit-text-fill-color: var(--color-text-muted);
+  color: var(--color-text-muted) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: var(--color-text-muted);
 }
 
 a {
-    @apply underline hover:text-text;
+  @apply underline hover:text-text;
 }
 
 @keyframes error-flash {
-    0%,
-    100% {
-        background-color: transparent;
-    }
-    50% {
-        background-color: color-mix(
-            in oklch,
-            var(--color-red) 30%,
-            transparent
-        );
-    }
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: color-mix(in oklch, var(--color-red) 30%, transparent);
+  }
 }
 .error {
-    animation: error-flash 0.1s steps(1) infinite;
+  animation: error-flash 0.1s steps(1) infinite;
 }

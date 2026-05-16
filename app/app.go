@@ -20,7 +20,7 @@ import (
 //go:embed amd_pip_requirements.txt
 var pipRequirements []byte
 
-const Version = "0.2.0"
+const Version = "0.2.1"
 
 type App struct {
 	ctx        context.Context
