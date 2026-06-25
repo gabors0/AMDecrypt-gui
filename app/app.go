@@ -317,11 +317,6 @@ func (a *App) updateBento4Settings(mp4decryptPath string, binDir string) error {
 }
 
 func (a *App) SetupAmd() {
-	if runtime.GOOS == "windows" {
-		a.EmitLog("[ERROR] Windows is not yet supported...")
-		return
-	}
-
 	// ------------------- download
 	appDataDir, err := a.GetAppDataDir()
 	if err != nil {
@@ -448,7 +443,9 @@ func (a *App) SetupAmd() {
 	// ------------------- create venv
 	a.EmitLog("[INFO] Creating Python venv...")
 	venvPath := filepath.Join(appDataDir, "amd", "venv")
-	out, err := exec.Command("python3", "-m", "venv", venvPath).CombinedOutput()
+	venvCmd := pythonVenvCommand(venvPath)
+	hideWindow(venvCmd)
+	out, err := venvCmd.CombinedOutput()
 	if err != nil {
 		a.EmitLog("[ERROR] Failed to create venv: " + err.Error() + "\n" + string(out))
 		return
@@ -457,8 +454,10 @@ func (a *App) SetupAmd() {
 
 	// ------------------- install pip requirements
 	a.EmitLog("[INFO] Installing pip requirements...")
-	pipBin := filepath.Join(venvPath, "bin", "pip")
-	out, err = exec.Command(pipBin, "install", "-r", reqPath).CombinedOutput()
+	pipBin := venvPipPath(venvPath)
+	pipCmd := exec.Command(pipBin, "install", "-r", reqPath)
+	hideWindow(pipCmd)
+	out, err = pipCmd.CombinedOutput()
 	if err != nil {
 		a.EmitLog("[ERROR] pip install failed: " + err.Error() + "\n" + string(out))
 		return
@@ -565,11 +564,6 @@ func (a *App) RemoveAmd() {
 }
 
 func (a *App) SetupWm() {
-	if runtime.GOOS == "windows" {
-		a.EmitLog("[ERROR] Windows is not yet supported...")
-		return
-	}
-
 	// ------------------- download
 	appDataDir, err := a.GetAppDataDir()
 	if err != nil {

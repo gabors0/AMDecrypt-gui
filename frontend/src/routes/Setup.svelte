@@ -3,12 +3,13 @@
   import {
     RunCmd,
     WhichCmd,
-    GetAppDataDir,
     SetupBento4,
     RemoveBento4,
     GetInstanceConfig,
     SetInstanceConfig,
     GetOS,
+    IsAmdInstalled,
+    IsWmInstalled,
     GetSettings,
     SaveSettings,
     DetectTerminal,
@@ -92,6 +93,8 @@
 
   async function checkStatus() {
     appendLog("[INFO] (Re-)Checking status...");
+    const os = currentOS || (await GetOS());
+    currentOS = os;
 
     const dockerOut = await RunCmd("docker --version");
     dockerStatus = dockerOut.startsWith("Error:")
@@ -111,7 +114,12 @@
       goStatus.installed ? `[INFO] Go: ${goOut}` : "[WARN] Go: not found",
     );
 
-    let pythonOut = await RunCmd("python3 --version");
+    let pythonOut = "";
+    if (os === "windows") {
+      pythonOut = await RunCmd("py -3 --version");
+    } else {
+      pythonOut = await RunCmd("python3 --version");
+    }
     if (pythonOut.startsWith("Error:")) {
       pythonOut = await RunCmd("python --version");
     }
@@ -138,7 +146,7 @@
     if (gpacPath.startsWith("Error:")) {
       gpacStatus = { installed: false, version: "" };
     } else {
-      const gpacOut = await RunCmd("gpac -version 2>&1 || true");
+      const gpacOut = await RunCmd("gpac -version");
       const ver =
         gpacOut.split("\n").find((l: string) => l.includes("version")) ??
         gpacPath;
@@ -160,11 +168,7 @@
         : "[WARN] mp4decrypt (Bento4): not found",
     );
 
-    const appDataDir = await GetAppDataDir();
-    const amdOut = await RunCmd(
-      `test -f "${appDataDir}/amd/venv/bin/python" && echo ok`,
-    );
-    isAmdInstalled = amdOut.trim() === "ok";
+    isAmdInstalled = await IsAmdInstalled();
     appendLog(
       isAmdInstalled
         ? "[INFO] AppleMusicDecrypt: installed"
@@ -172,10 +176,7 @@
     );
     if (isAmdInstalled) await loadInstanceConfig();
 
-    const wmOut = await RunCmd(
-      `test -f "${appDataDir}/wrapper-manager/docker-compose.yml" && echo ok`,
-    );
-    isWmInstalled = wmOut.trim() === "ok";
+    isWmInstalled = await IsWmInstalled();
     appendLog(
       isWmInstalled
         ? "[INFO] wrapper-manager: installed"

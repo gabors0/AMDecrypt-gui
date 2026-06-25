@@ -1,4 +1,4 @@
-//go:build !windows
+//go:build windows
 
 package app
 
@@ -10,13 +10,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
+	"strings"
 	"time"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
-
-var errNoTerminal = errors.New("no terminal emulator found (tried gnome-terminal, konsole, xfce4-terminal, xterm)")
 
 func (a *App) IsAmdRunning() bool {
 	a.mu.Lock()
@@ -55,35 +53,18 @@ func (a *App) StartAmd() error {
 	}
 
 	amdDir := filepath.Join(appDataDir, "amd")
-	pythonBin := filepath.Join(amdDir, "venv", "bin", "python")
-
+	pythonBin := venvPythonPath(filepath.Join(amdDir, "venv"))
 	if _, err := os.Stat(pythonBin); err != nil {
 		a.EmitLog("[ERROR] Python venv not found at " + pythonBin)
 		return fmt.Errorf("python not found at %s: %w", pythonBin, err)
 	}
 
-	settings, _ := a.GetSettings()
-	termBin, termArgs, err := findTerminal(settings.Terminal)
-	if err != nil {
-		a.EmitLog("[ERROR] " + err.Error())
-		return err
-	}
-	a.EmitLog("[INFO] Using terminal: " + termBin)
-
-	// Build the shell command that runs inside the terminal.
-	runCmd := fmt.Sprintf("cd %q && %q main.py; echo; echo 'Exited, press Enter to close.'; read", amdDir, pythonBin)
-
-	// Build terminal command: <terminal> <termArgs...> bash -c "<shellCmd>"
-	args := append(termArgs, "bash", "-c", runCmd)
-	cmd := exec.Command(termBin, args...)
+	cmd := powershellAmdCommand(amdDir, pythonBin, "main.py", "Exited, press Enter to close.")
 	cmd.Dir = amdDir
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-
-	a.EmitLog(fmt.Sprintf("[DEBUG] Command: %s %v", termBin, args))
 
 	if err := cmd.Start(); err != nil {
-		a.EmitLog("[ERROR] Failed to start terminal: " + err.Error())
-		return fmt.Errorf("failed to start terminal: %w", err)
+		a.EmitLog("[ERROR] Failed to start AMD: " + err.Error())
+		return fmt.Errorf("failed to start AMD: %w", err)
 	}
 
 	a.amdCmd = cmd
@@ -91,7 +72,7 @@ func (a *App) StartAmd() error {
 	a.amdDone = make(chan struct{})
 
 	wailsRuntime.EventsEmit(a.ctx, "amd:started")
-	a.EmitLog("[SUCCESS] AMD started in external terminal (" + termBin + ")")
+	a.EmitLog("[SUCCESS] AMD started in PowerShell")
 
 	go func() {
 		waitErr := cmd.Wait()
@@ -112,53 +93,22 @@ func (a *App) StartAmd() error {
 }
 
 func (a *App) StopAmd() error {
-	a.mu.Lock()
-	if !a.amdRunning || a.amdCmd == nil {
-		a.mu.Unlock()
-		return nil
-	}
-	done := a.amdDone
-	pgid := a.amdCmd.Process.Pid
-	a.mu.Unlock()
-
-	// Send SIGINT to the process group
-	_ = syscall.Kill(-pgid, syscall.SIGINT)
-
-	select {
-	case <-done:
-		return nil
-	case <-time.After(5 * time.Second):
-		// Force kill the process group
-		_ = syscall.Kill(-pgid, syscall.SIGKILL)
-		<-done
-		return nil
-	}
+	return a.stopWindowsProcess(&a.amdCmd, &a.amdRunning, a.amdDone, "AMD")
 }
 
 func (a *App) KillAmd() error {
-	a.mu.Lock()
-	if !a.amdRunning || a.amdCmd == nil {
-		a.mu.Unlock()
-		return nil
-	}
-	done := a.amdDone
-	pgid := a.amdCmd.Process.Pid
-	a.mu.Unlock()
-
-	_ = syscall.Kill(-pgid, syscall.SIGKILL)
-	<-done
-	return nil
+	return a.killWindowsProcess(&a.amdCmd, &a.amdRunning, a.amdDone, "AMD")
 }
 
 func (a *App) LoginAmd() error {
-	return a.runAmdToolInTerminal("login.py", "login")
+	return a.runAmdTool("login.py", "login")
 }
 
 func (a *App) LogoutAmd() error {
-	return a.runAmdToolInTerminal("logout.py", "logout")
+	return a.runAmdTool("logout.py", "logout")
 }
 
-func (a *App) runAmdToolInTerminal(script, label string) error {
+func (a *App) runAmdTool(script, label string) error {
 	a.EmitLog("[INFO] Launching AMD " + label + "...")
 
 	appDataDir, err := a.GetAppDataDir()
@@ -168,7 +118,7 @@ func (a *App) runAmdToolInTerminal(script, label string) error {
 	}
 
 	amdDir := filepath.Join(appDataDir, "amd")
-	pythonBin := filepath.Join(amdDir, "venv", "bin", "python")
+	pythonBin := venvPythonPath(filepath.Join(amdDir, "venv"))
 	scriptRel := filepath.Join("tools", script)
 
 	if _, err := os.Stat(pythonBin); err != nil {
@@ -180,30 +130,39 @@ func (a *App) runAmdToolInTerminal(script, label string) error {
 		return fmt.Errorf("script not found: %w", err)
 	}
 
-	settings, _ := a.GetSettings()
-	termBin, termArgs, err := findTerminal(settings.Terminal)
-	if err != nil {
-		a.EmitLog("[ERROR] " + err.Error())
-		return err
-	}
-	a.EmitLog("[INFO] Using terminal: " + termBin)
-
-	runCmd := fmt.Sprintf("cd %q && %q %q; echo; echo 'Done, press Enter to close.'; read", amdDir, pythonBin, scriptRel)
-	args := append(termArgs, "bash", "-c", runCmd)
-	cmd := exec.Command(termBin, args...)
+	cmd := powershellAmdCommand(amdDir, pythonBin, scriptRel, "Done, press Enter to close.")
 	cmd.Dir = amdDir
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	if err := cmd.Start(); err != nil {
-		a.EmitLog("[ERROR] Failed to start terminal: " + err.Error())
-		return fmt.Errorf("failed to start terminal: %w", err)
+		a.EmitLog("[ERROR] Failed to start AMD " + label + ": " + err.Error())
+		return fmt.Errorf("failed to start AMD %s: %w", label, err)
 	}
 
-	// Reap the terminal process so it doesn't become a zombie.
-	go func() { _ = cmd.Wait() }()
+	go func() {
+		waitErr := cmd.Wait()
+		if waitErr != nil {
+			a.EmitLog("[INFO] AMD " + label + " exited: " + waitErr.Error())
+		} else {
+			a.EmitLog("[SUCCESS] AMD " + label + " completed")
+		}
+	}()
 
-	a.EmitLog("[SUCCESS] " + label + " launched in external terminal (" + termBin + ")")
 	return nil
+}
+
+func powershellAmdCommand(workingDir string, pythonBin string, script string, closeMessage string) *exec.Cmd {
+	command := fmt.Sprintf(
+		"Set-Location -LiteralPath %s; & %s %s; Write-Host ''; Read-Host %s",
+		powershellQuote(workingDir),
+		powershellQuote(pythonBin),
+		powershellQuote(script),
+		powershellQuote(closeMessage),
+	)
+	return exec.Command("powershell", "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", command)
+}
+
+func powershellQuote(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", "''") + "'"
 }
 
 func (a *App) StartWm(verbose bool) error {
@@ -226,7 +185,7 @@ func (a *App) StartWm(verbose bool) error {
 	wmDir := filepath.Join(appDataDir, "wrapper-manager")
 	cmd := exec.Command("docker", "compose", "up")
 	cmd.Dir = wmDir
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	hideWindow(cmd)
 
 	if verbose {
 		stdout, _ := cmd.StdoutPipe()
@@ -264,43 +223,52 @@ func (a *App) StartWm(verbose bool) error {
 			a.EmitLog("[INFO] wrapper-manager process exited cleanly")
 		}
 	}()
+
 	return nil
 }
 
 func (a *App) StopWm() error {
+	return a.stopWindowsProcess(&a.wmCmd, &a.wmRunning, a.wmDone, "wrapper-manager")
+}
+
+func (a *App) KillWm() error {
+	return a.killWindowsProcess(&a.wmCmd, &a.wmRunning, a.wmDone, "wrapper-manager")
+}
+
+func (a *App) stopWindowsProcess(cmdRef **exec.Cmd, running *bool, done chan struct{}, label string) error {
 	a.mu.Lock()
-	if !a.wmRunning || a.wmCmd == nil {
+	if !*running || *cmdRef == nil {
 		a.mu.Unlock()
 		return nil
 	}
-	done := a.wmDone
-	pgid := a.wmCmd.Process.Pid
+	pid := (*cmdRef).Process.Pid
 	a.mu.Unlock()
 
-	_ = syscall.Kill(-pgid, syscall.SIGINT)
+	_ = exec.Command("taskkill", "/PID", fmt.Sprintf("%d", pid), "/T").Run()
+
 	select {
 	case <-done:
 		return nil
 	case <-time.After(5 * time.Second):
-		// Force kill the process group
-		_ = syscall.Kill(-pgid, syscall.SIGKILL)
-		<-done
-		return nil
+		a.EmitLog("[WARN] " + label + " did not stop gracefully, forcing termination")
+		return a.killWindowsPid(pid, done)
 	}
 }
 
-func (a *App) KillWm() error {
+func (a *App) killWindowsProcess(cmdRef **exec.Cmd, running *bool, done chan struct{}, _ string) error {
 	a.mu.Lock()
-	if !a.wmRunning || a.wmCmd == nil {
+	if !*running || *cmdRef == nil {
 		a.mu.Unlock()
 		return nil
 	}
-	done := a.wmDone
-	pgid := a.wmCmd.Process.Pid
+	pid := (*cmdRef).Process.Pid
 	a.mu.Unlock()
 
-	_ = syscall.Kill(-pgid, syscall.SIGKILL)
+	return a.killWindowsPid(pid, done)
+}
+
+func (a *App) killWindowsPid(pid int, done chan struct{}) error {
+	_ = exec.Command("taskkill", "/PID", fmt.Sprintf("%d", pid), "/T", "/F").Run()
 	<-done
 	return nil
-
 }

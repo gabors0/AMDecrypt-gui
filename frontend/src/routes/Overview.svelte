@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
-    RunCmd,
-    GetAppDataDir,
+    IsAmdInstalled,
+    IsWmInstalled,
     OpenAppDataDir,
     OpenDownloadsDir,
   } from "../../wailsjs/go/app/App.js";
@@ -85,12 +85,9 @@
   async function installAmd() {
     isAmdInstalling = true;
     await SetupAmd();
-    const appDataDir = await GetAppDataDir();
-    const result = await RunCmd(
-      `test -f "${appDataDir}/amd/venv/bin/python" && echo ok`,
-    );
-    persistAmdInstalled(result.trim() === "ok");
-    if (result.trim() === "ok") await loadInstanceConfig();
+    const installed = await IsAmdInstalled();
+    persistAmdInstalled(installed);
+    if (installed) await loadInstanceConfig();
     isAmdInstalling = false;
   }
 
@@ -107,11 +104,7 @@
   async function installWm() {
     isWmInstalling = true;
     await SetupWm();
-    const appDataDir = await GetAppDataDir();
-    const result = await RunCmd(
-      `test -f "${appDataDir}/wrapper-manager/docker-compose.yml" && echo ok`,
-    );
-    persistWmInstalled(result.trim() === "ok");
+    persistWmInstalled(await IsWmInstalled());
     isWmInstalling = false;
   }
 

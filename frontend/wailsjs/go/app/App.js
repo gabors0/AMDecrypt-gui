@@ -30,8 +30,16 @@ export function GetVersion() {
   return window['go']['app']['App']['GetVersion']();
 }
 
+export function IsAmdInstalled() {
+  return window['go']['app']['App']['IsAmdInstalled']();
+}
+
 export function IsAmdRunning() {
   return window['go']['app']['App']['IsAmdRunning']();
+}
+
+export function IsWmInstalled() {
+  return window['go']['app']['App']['IsWmInstalled']();
 }
 
 export function IsWmRunning() {

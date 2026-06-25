@@ -16,7 +16,11 @@ export function GetSettings():Promise<app.Settings>;
 
 export function GetVersion():Promise<string>;
 
+export function IsAmdInstalled():Promise<boolean>;
+
 export function IsAmdRunning():Promise<boolean>;
+
+export function IsWmInstalled():Promise<boolean>;
 
 export function IsWmRunning():Promise<boolean>;
 

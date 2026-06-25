@@ -1,9 +1,9 @@
 package main
 
 import (
+	"amdecrypt-gui/app"
 	"context"
 	"embed"
-	"amdecrypt-gui/app"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
