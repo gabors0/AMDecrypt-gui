@@ -345,9 +345,7 @@
             <button
               class="box"
               onclick={installBento4}
-              disabled={isBento4Working ||
-                bento4Status?.installed ||
-                currentOS === "windows"}
+              disabled={isBento4Working || bento4Status?.installed}
             >
               {#if isBento4Working}
                 Working...
@@ -355,7 +353,9 @@
                 Install <span class="underline cursor-help"
                   ><Popup
                     long
-                    text="Builds Bento4 from source using git + cmake + make install. Requires cmake to be installed and available on PATH. Linux/Mac only"
+                    text={currentOS === "windows"
+                      ? "Installs Bento4 with winget. Requires Windows Package Manager to be installed and available on PATH."
+                      : "Builds Bento4 from source using git + cmake + make install. Requires cmake to be installed and available on PATH."}
                     position="top">[?]</Popup
                   ></span
                 >

@@ -132,7 +132,7 @@ func (a *App) GetAppDataDir() (string, error) {
 
 func (a *App) SetupBento4() {
 	if runtime.GOOS == "windows" {
-		a.EmitLog("[ERROR] Installing bento4 automatically isn't available on Windows!")
+		a.setupBento4Windows()
 		return
 	}
 
@@ -151,33 +151,12 @@ func (a *App) SetupBento4() {
 		installPrefix = filepath.Join(homeDir, ".local")
 	}
 
-	emitOutput := func(out []byte) {
-		for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-			if strings.TrimSpace(line) == "" {
-				continue
-			}
-			a.EmitLog(line)
-		}
-	}
-
-	runStep := func(label string, cmd *exec.Cmd) bool {
-		a.EmitLog("[INFO] " + label)
-		hideWindow(cmd)
-		out, err := cmd.CombinedOutput()
-		emitOutput(out)
-		if err != nil {
-			a.EmitLog("[ERROR] " + label + " failed: " + err.Error())
-			return false
-		}
-		return true
-	}
-
 	if err := os.RemoveAll(repoDir); err != nil {
 		a.EmitLog("[ERROR] Failed to clean old Bento4 dir: " + err.Error())
 		return
 	}
 
-	if !runStep("Cloning Bento4 repository...", exec.Command("git", "clone", "--depth=1", "https://github.com/axiomatic-systems/Bento4.git", repoDir)) {
+	if !a.runLoggedStep("Cloning Bento4 repository...", exec.Command("git", "clone", "--depth=1", "https://github.com/axiomatic-systems/Bento4.git", repoDir)) {
 		return
 	}
 
@@ -193,7 +172,7 @@ func (a *App) SetupBento4() {
 		"..",
 	)
 	cmakeCmd.Dir = buildDir
-	if !runStep("Configuring Bento4 with CMake", cmakeCmd) {
+	if !a.runLoggedStep("Configuring Bento4 with CMake", cmakeCmd) {
 		return
 	}
 
@@ -203,14 +182,14 @@ func (a *App) SetupBento4() {
 	}
 	makeCmd := exec.Command("make", fmt.Sprintf("-j%d", jobs))
 	makeCmd.Dir = buildDir
-	if !runStep(fmt.Sprintf("Building Bento4 with %d parallel jobs", jobs), makeCmd) {
+	if !a.runLoggedStep(fmt.Sprintf("Building Bento4 with %d parallel jobs", jobs), makeCmd) {
 		return
 	}
 
 	a.EmitLog("[INFO] Installing Bento4 to user prefix: " + installPrefix)
 	installCmd := exec.Command("make", "install")
 	installCmd.Dir = buildDir
-	if !runStep("Installing Bento4", installCmd) {
+	if !a.runLoggedStep("Installing Bento4", installCmd) {
 		return
 	}
 
@@ -237,6 +216,123 @@ func (a *App) SetupBento4() {
 	}
 
 	a.EmitLog("[SUCCESS] Bento4 installed successfully!")
+}
+
+const bento4WingetID = "AxiomaticSystems.Bento4"
+
+func (a *App) setupBento4Windows() {
+	a.EmitLog("[INFO] Installing Bento4 with winget...")
+
+	if _, err := exec.LookPath("winget"); err != nil {
+		a.EmitLog("[ERROR] winget was not found on PATH. Install Windows Package Manager, then try again.")
+		return
+	}
+
+	cmd := exec.Command(
+		"winget",
+		"install",
+		"--id", bento4WingetID,
+		"--exact",
+		"--source", "winget",
+		"--accept-package-agreements",
+		"--accept-source-agreements",
+		"--disable-interactivity",
+	)
+	if !a.runLoggedStep("Installing Bento4 package "+bento4WingetID, cmd) {
+		return
+	}
+
+	bentoPath, err := findMp4decrypt()
+	if err != nil {
+		a.EmitLog("[ERROR] Bento4 installed, but mp4decrypt was not found. Restart the app or add the WinGet links directory to PATH.")
+		return
+	}
+
+	bentoDir := filepath.Dir(bentoPath)
+	if err := a.updateBento4Settings(bentoPath, bentoDir); err != nil {
+		a.EmitLog("[WARN] Bento4 installed, but failed to update settings.jsonc: " + err.Error())
+	} else {
+		a.EmitLog("[INFO] Updated Bento4 uninstall settings in settings.jsonc")
+	}
+
+	a.EmitLog("[SUCCESS] Bento4 installed successfully!")
+}
+
+func (a *App) runLoggedStep(label string, cmd *exec.Cmd) bool {
+	a.EmitLog("[INFO] " + label)
+	hideWindow(cmd)
+	out, err := cmd.CombinedOutput()
+	a.emitCommandOutput(out)
+	if err != nil {
+		a.EmitLog("[ERROR] " + label + " failed: " + err.Error())
+		return false
+	}
+	return true
+}
+
+func (a *App) emitCommandOutput(out []byte) {
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		a.EmitLog(line)
+	}
+}
+
+func findMp4decrypt() (string, error) {
+	if path, err := exec.LookPath("mp4decrypt"); err == nil {
+		return path, nil
+	}
+
+	if runtime.GOOS != "windows" {
+		return "", os.ErrNotExist
+	}
+
+	for _, path := range windowsMp4decryptCandidates() {
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		}
+	}
+
+	return "", os.ErrNotExist
+}
+
+func windowsMp4decryptCandidates() []string {
+	var candidates []string
+
+	if localAppData := strings.TrimSpace(os.Getenv("LOCALAPPDATA")); localAppData != "" {
+		candidates = append(candidates, filepath.Join(localAppData, "Microsoft", "WinGet", "Links", "mp4decrypt.exe"))
+		packageRoot := filepath.Join(localAppData, "Microsoft", "WinGet", "Packages")
+		candidates = append(candidates, findMp4decryptInWingetPackages(packageRoot)...)
+	}
+
+	if programFiles := strings.TrimSpace(os.Getenv("ProgramFiles")); programFiles != "" {
+		candidates = append(candidates, filepath.Join(programFiles, "WinGet", "Links", "mp4decrypt.exe"))
+	}
+
+	return candidates
+}
+
+func findMp4decryptInWingetPackages(packageRoot string) []string {
+	matches, err := filepath.Glob(filepath.Join(packageRoot, bento4WingetID+"_*"))
+	if err != nil {
+		return nil
+	}
+
+	var candidates []string
+	for _, dir := range matches {
+		_ = filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return nil
+			}
+			if strings.EqualFold(d.Name(), "mp4decrypt.exe") {
+				candidates = append(candidates, path)
+			}
+			return nil
+		})
+	}
+
+	return candidates
 }
 
 func (a *App) RemoveBento4() {
