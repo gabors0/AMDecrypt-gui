@@ -672,6 +672,14 @@ func (a *App) SetupWm() {
 		a.EmitLog("[ERROR] Failed to patch wrapper-manager compose file: " + err.Error())
 		return
 	}
+	if err := a.patchWmContainerPermissions(filepath.Join(appDataDir, "wrapper-manager")); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager container permissions: " + err.Error())
+		return
+	}
+	if err := a.patchWmLoginFailure(filepath.Join(appDataDir, "wrapper-manager")); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager login failure handling: " + err.Error())
+		return
+	}
 
 	if err := os.Remove(zipPath); err != nil {
 		a.EmitLog("[ERROR] Failed to delete zip: " + err.Error())
@@ -698,6 +706,105 @@ func (a *App) patchWmCompose(wmDir string) error {
 		return err
 	}
 	a.EmitLog("[INFO] Patched wrapper-manager compose boolean flags")
+	return nil
+}
+
+func (a *App) patchWmDebug(wmDir string, debug bool) error {
+	composePath := filepath.Join(wmDir, "docker-compose.yml")
+	data, err := os.ReadFile(composePath)
+	if err != nil {
+		return err
+	}
+
+	content := string(data)
+	updated := strings.ReplaceAll(content, ",\n      \"--debug\"", "")
+	updated = strings.ReplaceAll(updated, "\n      \"--debug\",", "")
+	updated = strings.ReplaceAll(updated, ", \"--debug\"", "")
+
+	if debug && !strings.Contains(updated, "\"--debug\"") {
+		switch {
+		case strings.Contains(updated, "\"--mirror=false\""):
+			updated = strings.Replace(updated, "\"--mirror=false\"", "\"--mirror=false\",\n      \"--debug\"", 1)
+		case strings.Contains(updated, "\"--mirror=true\""):
+			updated = strings.Replace(updated, "\"--mirror=true\"", "\"--mirror=true\",\n      \"--debug\"", 1)
+		default:
+			return fmt.Errorf("could not find wrapper-manager command anchor")
+		}
+	}
+
+	if updated == content {
+		return nil
+	}
+
+	if err := os.WriteFile(composePath, []byte(updated), 0644); err != nil {
+		return err
+	}
+	if debug {
+		a.EmitLog("[INFO] Enabled wrapper-manager debug logging")
+	} else {
+		a.EmitLog("[INFO] Disabled wrapper-manager debug logging")
+	}
+	return nil
+}
+
+func (a *App) patchWmContainerPermissions(wmDir string) error {
+	composePath := filepath.Join(wmDir, "docker-compose.yml")
+	data, err := os.ReadFile(composePath)
+	if err != nil {
+		return err
+	}
+
+	content := string(data)
+	if strings.Contains(content, "privileged: true") && strings.Contains(content, "seccomp=unconfined") {
+		return nil
+	}
+
+	anchor := "    container_name: wrapper-manager\n"
+	if !strings.Contains(content, anchor) {
+		return fmt.Errorf("could not find wrapper-manager service")
+	}
+
+	insert := anchor
+	if !strings.Contains(content, "privileged: true") {
+		insert += "    privileged: true\n"
+	}
+	if !strings.Contains(content, "seccomp=unconfined") {
+		insert += "    security_opt:\n      - seccomp=unconfined\n"
+	}
+
+	updated := strings.Replace(content, anchor, insert, 1)
+	if err := os.WriteFile(composePath, []byte(updated), 0644); err != nil {
+		return err
+	}
+	a.EmitLog("[INFO] Patched wrapper-manager container permissions for unshare")
+	return nil
+}
+
+func (a *App) patchWmLoginFailure(wmDir string) error {
+	wrapperPath := filepath.Join(wmDir, "wrapper.go")
+	data, err := os.ReadFile(wrapperPath)
+	if err != nil {
+		return err
+	}
+
+	const marker = "AMDecrypt-gui patch: notify login callers when the wrapper exits before becoming ready."
+	content := string(data)
+	if strings.Contains(content, marker) {
+		return nil
+	}
+
+	old := "\terr = cmd.Wait()\n\tif err != nil {\n\t\tlog.Warnf(\"Wrapper exited with error: %v\\n\", err)\n\t}\n\n\tgo wrapperDown(&instance)\n"
+	new := "\terr = cmd.Wait()\n\tif err != nil {\n\t\t// " + marker + "\n\t\tif instance.NoRestart {\n\t\t\tgo LoginFailedHandler(instance.Id)\n\t\t}\n\t\tlog.Warnf(\"Wrapper exited with error: %v\\n\", err)\n\t}\n\n\tgo wrapperDown(&instance)\n"
+	updated := strings.Replace(content, old, new, 1)
+	if updated == content {
+		a.EmitLog("[WARN] Skipped wrapper-manager login failure patch; upstream wrapper.go layout changed")
+		return nil
+	}
+
+	if err := os.WriteFile(wrapperPath, []byte(updated), 0644); err != nil {
+		return err
+	}
+	a.EmitLog("[INFO] Patched wrapper-manager login failure handling")
 	return nil
 }
 

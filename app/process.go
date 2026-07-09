@@ -252,11 +252,23 @@ func (a *App) StartWm(verbose bool) error {
 		a.EmitLog("[ERROR] Failed to patch wrapper-manager compose file: " + err.Error())
 		return fmt.Errorf("failed to patch wrapper-manager compose file: %w", err)
 	}
+	if err := a.patchWmContainerPermissions(wmDir); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager container permissions: " + err.Error())
+		return fmt.Errorf("failed to patch wrapper-manager container permissions: %w", err)
+	}
+	if err := a.patchWmDebug(wmDir, verbose); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager debug logging: " + err.Error())
+		return fmt.Errorf("failed to patch wrapper-manager debug logging: %w", err)
+	}
+	if err := a.patchWmLoginFailure(wmDir); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager login failure handling: " + err.Error())
+		return fmt.Errorf("failed to patch wrapper-manager login failure handling: %w", err)
+	}
 	if err := a.checkDockerAccess(); err != nil {
 		return err
 	}
 
-	cmd := exec.Command("docker", "compose", "up")
+	cmd := exec.Command("docker", "compose", "up", "--build")
 	cmd.Dir = wmDir
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
