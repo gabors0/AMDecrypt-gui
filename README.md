@@ -26,8 +26,29 @@
 <details>
 <summary><b>Linux</b></summary>
 
-- Have Go, Node/npm and Wails installed *(on Linux, libgtk-3-dev and libwebkit2gtk-4.1-dev are probably required to build.)*
+- Dependencies:
+  - Go
+  - Wails
+  - Node/npm
+  - webkitgtk 4.0
+  - GCC C++ runtime (`libstdc++.so.6`)
+
+    Package names by distro:
+    ```bash
+    # Arch
+    sudo pacman -S gcc-libs
+
+    # Fedora
+    sudo dnf install libstdc++
+
+    # Debian/Ubuntu
+    sudo apt install libstdc++6
+    ```
+
+    On NixOS, make `libstdc++.so.6` available through `nix-ld`, an FHS environment, or a wrapper that includes `stdenv.cc.cc.lib`.
+
 ```bash
+# install wails
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 ```
 - Easy install: run the bootstrap installer

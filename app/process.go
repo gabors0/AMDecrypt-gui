@@ -248,6 +248,10 @@ func (a *App) StartWm(verbose bool) error {
 	}
 
 	wmDir := filepath.Join(appDataDir, "wrapper-manager")
+	if err := a.patchWmCompose(wmDir); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager compose file: " + err.Error())
+		return fmt.Errorf("failed to patch wrapper-manager compose file: %w", err)
+	}
 	if err := a.checkDockerAccess(); err != nil {
 		return err
 	}

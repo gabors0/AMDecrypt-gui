@@ -668,12 +668,37 @@ func (a *App) SetupWm() {
 	}
 
 	a.EmitLog("[SUCCESS] Extracted to: " + filepath.Join(appDataDir, "wrapper-manager"))
+	if err := a.patchWmCompose(filepath.Join(appDataDir, "wrapper-manager")); err != nil {
+		a.EmitLog("[ERROR] Failed to patch wrapper-manager compose file: " + err.Error())
+		return
+	}
 
 	if err := os.Remove(zipPath); err != nil {
 		a.EmitLog("[ERROR] Failed to delete zip: " + err.Error())
 		return
 	}
 	a.EmitLog("[INFO] Deleted zip archive")
+}
+
+func (a *App) patchWmCompose(wmDir string) error {
+	composePath := filepath.Join(wmDir, "docker-compose.yml")
+	data, err := os.ReadFile(composePath)
+	if err != nil {
+		return err
+	}
+
+	content := string(data)
+	updated := strings.ReplaceAll(content, `"--mirror", "false"`, `"--mirror=false"`)
+	updated = strings.ReplaceAll(updated, `"--mirror", "true"`, `"--mirror=true"`)
+	if updated == content {
+		return nil
+	}
+
+	if err := os.WriteFile(composePath, []byte(updated), 0644); err != nil {
+		return err
+	}
+	a.EmitLog("[INFO] Patched wrapper-manager compose boolean flags")
+	return nil
 }
 
 func (a *App) RemoveWm() {
