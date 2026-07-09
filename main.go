@@ -1,14 +1,15 @@
 package main
 
 import (
+	"amdecrypt-gui/app"
 	"context"
 	"embed"
-	"amdecrypt-gui/app"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
+	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed all:frontend/dist
@@ -25,7 +26,7 @@ func main() {
 		Title:     "AMDecrypt-gui",
 		Width:     1024,
 		Height:    768,
-		MinWidth:  450,
+		MinWidth:  300,
 		MinHeight: 650,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
@@ -52,6 +53,7 @@ func startup(ctx context.Context) {
 }
 
 func domReady(ctx context.Context) {
+	wailsRuntime.WindowSetMinSize(ctx, 300, 650)
 	app.DomReady(appobj, ctx)
 }
 

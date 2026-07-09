@@ -25,13 +25,14 @@
   import { wm } from "../lib/wmStore.svelte.ts";
   import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
   import Indicator from "../modules/Indicator.svelte";
+  import { CheckStatus } from "./Setup.svelte";
 
   let isWmStopped = $derived(!wm.running);
   let isAmdStopped = $derived(!amd.running);
   let isAmdInstalling = $state(false);
   let isWmInstalling = $state(false);
 
-  let useCustomInstance = $state(true);
+  let useCustomInstance = $state(false);
 
   async function loadInstanceConfig() {
     try {
@@ -152,6 +153,7 @@
   }
 
   onMount(() => {
+    checkStatus();
     if (isAmdInstalled) void loadInstanceConfig();
   });
 </script>
@@ -256,7 +258,7 @@
             )}
         >
           <span>Github</span>
-          <span class="relative top-[-1px] text-md" aria-hidden="true">↗</span>
+          <span class="relative top-px text-md" aria-hidden="true">↗</span>
         </button>
       {/if}
     </div>
@@ -321,7 +323,7 @@
           )}
       >
         <span>Github</span>
-        <span class="relative top-[-1px] text-md" aria-hidden="true">↗</span>
+        <span class="relative top-px text-md" aria-hidden="true">↗</span>
       </button>
     </div>
   </div>

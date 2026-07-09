@@ -54,10 +54,10 @@
 </script>
 
 <div class="flex flex-col h-full w-full bg-bg text-text">
-  <nav class="flex flex-row divide-x divide-border bg-bg">
+  <nav class="flex min-w-0 flex-row divide-x divide-border bg-bg">
     {#each tabs as tab}
       <button
-        class="px-5 flex-1 py-2.5 text-sm border-b border-border"
+        class="min-w-0 flex-1 truncate px-2 py-2.5 text-sm border-b border-border"
         class:border-b-bg={currentRoute === tab.id}
         class:hover:border-b-bg-active={currentRoute === tab.id}
         class:text-text={currentRoute === tab.id}

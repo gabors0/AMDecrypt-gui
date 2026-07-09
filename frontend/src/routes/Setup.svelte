@@ -90,7 +90,7 @@
       isAmdInstalled,
   );
 
-  async function checkStatus() {
+  export async function checkStatus() {
     appendLog("[INFO] (Re-)Checking status...");
 
     const dockerOut = await RunCmd("docker --version");

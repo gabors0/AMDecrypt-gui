@@ -70,10 +70,10 @@
     </div>
   </div>
   <div class="flex flex-col gap-4">
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="box flex flex-col w-full"
       onpointerdown={() => (selectedMode = "download")}
+      aria-label="change command builder to download mode"
     >
       <label
         class="p-2 text-xl cursor-pointer flex items-center justify-between"
@@ -159,6 +159,7 @@
     <div
       class="box flex flex-col w-full"
       onpointerdown={() => (selectedMode = "quality")}
+      aria-label="change command builder to quality mode"
     >
       <label
         class="p-2 text-xl cursor-pointer flex items-center justify-between"
