@@ -25,7 +25,6 @@
   import { wm } from "../lib/wmStore.svelte.ts";
   import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
   import Indicator from "../modules/Indicator.svelte";
-  import { CheckStatus } from "./Setup.svelte";
 
   let isWmStopped = $derived(!wm.running);
   let isAmdStopped = $derived(!amd.running);
@@ -43,7 +42,12 @@
     }
   }
 
-  type DepStatus = null | { installed: boolean; version: string };
+  type DepStatus = null | {
+    installed: boolean;
+    version: string;
+    usable?: boolean;
+    detail?: string;
+  };
   const _cached = JSON.parse(localStorage.getItem("depStatus") ?? "null");
   let isAmdInstalled = $state(_cached?.amdInstalled ?? false);
   let isWmInstalled = $state(_cached?.wmInstalled ?? false);
@@ -55,9 +59,12 @@
   let gpacStatus: DepStatus = $state(_cached?.gpac ?? null);
   let bento4Status: DepStatus = $state(_cached?.bento4 ?? null);
   let lastChecked: string | null = $state(_cached?.lastChecked ?? null);
+  let dockerReady = $derived(
+    dockerStatus?.installed && dockerStatus?.usable !== false,
+  );
 
   let isReady = $derived(
-    (useCustomInstance || (dockerStatus?.installed && goStatus?.installed)) &&
+    (useCustomInstance || (dockerReady && goStatus?.installed)) &&
       pythonStatus?.installed &&
       ffmpegStatus?.installed &&
       gpacStatus?.installed &&
@@ -127,6 +134,29 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  async function refreshDockerStatus() {
+    const dockerOut = await RunCmd("docker --version");
+    if (dockerOut.startsWith("Error:")) {
+      dockerStatus = { installed: false, version: "" };
+    } else {
+      const dockerInfoOut = await RunCmd("docker info");
+      const canUseDocker = !dockerInfoOut.startsWith("Error:");
+      dockerStatus = {
+        installed: true,
+        version: dockerOut,
+        usable: canUseDocker,
+        detail: canUseDocker ? "" : dockerInfoOut,
+      };
+    }
+
+    const current =
+      JSON.parse(localStorage.getItem("depStatus") ?? "null") ?? {};
+    localStorage.setItem(
+      "depStatus",
+      JSON.stringify({ ...current, docker: dockerStatus }),
+    );
+  }
+
   async function quickStart() {
     isQuickStarting = true;
     try {
@@ -153,7 +183,7 @@
   }
 
   onMount(() => {
-    checkStatus();
+    void refreshDockerStatus();
     if (isAmdInstalled) void loadInstanceConfig();
   });
 </script>
@@ -200,6 +230,7 @@
           <button
             class="box w-1/3"
             disabled={!isWmInstalled ||
+              !dockerReady ||
               !isWmStopped ||
               isWmInstalling ||
               isQuickStarting}
@@ -209,6 +240,7 @@
             class="box w-1/3"
             title="start but log into the app's logs"
             disabled={!isWmInstalled ||
+              !dockerReady ||
               !isWmStopped ||
               isWmInstalling ||
               isQuickStarting}
@@ -370,7 +402,10 @@
     >
     <button
       class="box p-2 col-span-2 w-full mx-auto"
-      disabled={isQuickStarting || isAmdInstalling || isWmInstalling}
+      disabled={isQuickStarting ||
+        isAmdInstalling ||
+        isWmInstalling ||
+        (!useCustomInstance && !dockerReady)}
       onclick={quickStart}
       >{isQuickStarting ? "Working..." : "Quick Start"}</button
     >

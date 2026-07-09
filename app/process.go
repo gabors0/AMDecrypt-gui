@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -33,6 +34,31 @@ func streamToLog(a *App, r io.Reader) {
 	for s.Scan() {
 		a.EmitLog(s.Text())
 	}
+}
+
+func (a *App) checkDockerAccess() error {
+	cmd := exec.Command("docker", "info")
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		return nil
+	}
+
+	detail := strings.TrimSpace(string(output))
+	if detail == "" {
+		detail = err.Error()
+	}
+
+	lowerDetail := strings.ToLower(detail)
+	if strings.Contains(lowerDetail, "permission denied") ||
+		strings.Contains(lowerDetail, "docker.sock") ||
+		strings.Contains(lowerDetail, "cannot connect to the docker daemon") {
+		a.EmitLog("[ERROR] Docker is installed, but this user cannot access the Docker daemon.")
+		a.EmitLog("[ERROR] Use rootless Docker, add this user to the docker group and log out/in, or use a self-hosted wrapper-manager instance.")
+	} else {
+		a.EmitLog("[ERROR] Docker daemon check failed.")
+	}
+	a.EmitLog("[ERROR] docker info: " + detail)
+	return fmt.Errorf("docker daemon is not accessible: %s", detail)
 }
 
 func (a *App) StartAmd() error {
@@ -222,6 +248,10 @@ func (a *App) StartWm(verbose bool) error {
 	}
 
 	wmDir := filepath.Join(appDataDir, "wrapper-manager")
+	if err := a.checkDockerAccess(); err != nil {
+		return err
+	}
+
 	cmd := exec.Command("docker", "compose", "up")
 	cmd.Dir = wmDir
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}

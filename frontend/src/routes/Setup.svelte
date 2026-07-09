@@ -68,7 +68,12 @@
     }
   }
 
-  type DepStatus = null | { installed: boolean; version: string };
+  type DepStatus = null | {
+    installed: boolean;
+    version: string;
+    usable?: boolean;
+    detail?: string;
+  };
   const _cached = JSON.parse(localStorage.getItem("depStatus") ?? "null");
   let isAmdInstalled = $state(_cached?.amdInstalled ?? false);
   let isWmInstalled = $state(_cached?.wmInstalled ?? false);
@@ -79,9 +84,12 @@
   let gpacStatus: DepStatus = $state(_cached?.gpac ?? null);
   let bento4Status: DepStatus = $state(_cached?.bento4 ?? null);
   let lastChecked: string | null = $state(_cached?.lastChecked ?? null);
+  let dockerReady = $derived(
+    dockerStatus?.installed && dockerStatus?.usable !== false,
+  );
 
   let isReady = $derived(
-    (useCustomInstance || (dockerStatus?.installed && goStatus?.installed)) &&
+    (useCustomInstance || (dockerReady && goStatus?.installed)) &&
       pythonStatus?.installed &&
       ffmpegStatus?.installed &&
       gpacStatus?.installed &&
@@ -94,14 +102,28 @@
     appendLog("[INFO] (Re-)Checking status...");
 
     const dockerOut = await RunCmd("docker --version");
-    dockerStatus = dockerOut.startsWith("Error:")
-      ? { installed: false, version: "" }
-      : { installed: true, version: dockerOut };
-    appendLog(
-      dockerStatus.installed
-        ? `[INFO] Docker: ${dockerOut}`
-        : "[WARN] Docker: not found",
-    );
+    if (dockerOut.startsWith("Error:")) {
+      dockerStatus = { installed: false, version: "" };
+      appendLog("[WARN] Docker: not found");
+    } else {
+      const dockerInfoOut = await RunCmd("docker info");
+      const canUseDocker = !dockerInfoOut.startsWith("Error:");
+      dockerStatus = {
+        installed: true,
+        version: dockerOut,
+        usable: canUseDocker,
+        detail: canUseDocker ? "" : dockerInfoOut,
+      };
+      appendLog(`[INFO] Docker: ${dockerOut}`);
+      if (canUseDocker) {
+        appendLog("[INFO] Docker daemon: accessible");
+      } else {
+        appendLog(
+          "[WARN] Docker daemon: not accessible for this user. Use rootless Docker, add this user to the docker group and log out/in, or use a self-hosted wrapper-manager instance.",
+        );
+        appendLog(`[WARN] docker info: ${dockerInfoOut}`);
+      }
+    }
 
     const goOut = await RunCmd("go version");
     goStatus = goOut.startsWith("Error:")
@@ -273,7 +295,7 @@
         ffmpegStatus?.installed &&
         gpacStatus?.installed &&
         bento4Status?.installed &&
-        (useCustomInstance || (dockerStatus?.installed && goStatus?.installed))
+        (useCustomInstance || (dockerReady && goStatus?.installed))
           ? "green"
           : "red"}
       />
@@ -393,10 +415,16 @@
               {#if dockerStatus === null}
                 <span class="text-text-muted">Not checked</span>
                 <span class="text-xs invisible">_</span>
-              {:else if dockerStatus.installed}
+              {:else if dockerStatus.installed && dockerStatus.usable !== false}
                 <span
                   class="bg-green py-1.5 text-bg font-bold text-center w-20 leading-none"
                   >Installed</span
+                >
+              {:else if dockerStatus.installed}
+                <span
+                  class="bg-red py-1.5 text-bg font-bold text-center w-20 leading-none"
+                  title={dockerStatus.detail || "Docker daemon is not accessible"}
+                  >No access</span
                 >
               {:else}
                 <span
@@ -438,7 +466,7 @@
       Other options
       <Indicator
         status={useCustomInstance ||
-        (isWmInstalled && dockerStatus?.installed && goStatus?.installed)
+        (isWmInstalled && dockerReady && goStatus?.installed)
           ? "green"
           : "red"}
       />

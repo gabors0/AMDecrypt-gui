@@ -113,6 +113,10 @@ func (a *App) RunCmd(command string) string {
 	hideWindow(cmd)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		detail := strings.TrimSpace(string(output))
+		if detail != "" {
+			return "Error: " + err.Error() + ": " + detail
+		}
 		return "Error: " + err.Error()
 	}
 	return strings.TrimSpace(string(output))
